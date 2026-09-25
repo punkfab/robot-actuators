@@ -91,6 +91,7 @@ robot-actuators/
 │   ├── gears.py               # involute planetary gears: spur (sun/planet) + custom internal ring
 │   ├── efficiency.py          # Layer B: two-stage η (planetary × cycloidal) + needle-bearing sweep
 │   └── out/                   # generated .step + .stl for all 8 parts + assembly.step
+├── chain-motor/               # 2-cell Variable Chain Motor (geared BLDC cells that bend; IROS 2025)
 └── mujoco/
     ├── actuator.py            # MotorSpec + ActuatorSpec: motor × total ratio → joint + servo numbers
     ├── testbench.xml          # Layer-A sizing scene (real meshes + load arm + payload)

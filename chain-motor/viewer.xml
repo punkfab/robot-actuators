@@ -1,0 +1,65 @@
+<mujoco model="chain_motor_2cell">
+  <compiler meshdir="out" angle="radian" autolimits="true"/>
+  <option timestep="0.0001" gravity="0 0 0" integrator="implicitfast"/>
+  <visual><global offwidth="960" offheight="720"/>
+    <headlight ambient="0.45 0.45 0.45" diffuse="0.55 0.55 0.55" specular="0.1 0.1 0.1"/></visual>
+  <default><geom contype="0" conaffinity="0" density="1240"/>
+    <equality solref="0.0005 1"/></default>
+  <asset>
+    <mesh name="base" file="base.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="link_lower" file="link_lower.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="link_upper" file="link_upper.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="stator_gear_A" file="stator_gear_A.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="stator_gear_B" file="stator_gear_B.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="rotor_gear" file="rotor_gear.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="motor" file="motor_2204.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="dowel" file="dowel.stl" scale="0.001 0.001 0.001"/>
+    <texture type="skybox" builtin="gradient" rgb1="0.93 0.94 0.96" rgb2="0.72 0.75 0.80" width="64" height="64"/>
+    <material name="pla" rgba="0.80 0.80 0.84 1"/>
+    <material name="link" rgba="0.35 0.55 0.85 0.9"/>
+    <material name="stator" rgba="0.25 0.40 0.85 1"/>
+    <material name="rotor" rgba="0.85 0.30 0.25 1"/>
+    <material name="motor" rgba="0.25 0.25 0.28 1"/>
+  </asset>
+  <worldbody>
+    <light pos="0.05 -0.1 0.3" dir="-0.1 0.3 -1"/>
+    <body name="aim" pos="0.0 0 0.018"/>
+    <camera name="iso" pos="0.03 -0.10 0.12" mode="targetbody" target="aim"/>
+    <geom type="mesh" mesh="base" material="pla"/>
+    <geom type="mesh" mesh="stator_gear_A" material="stator"/>
+    <geom type="mesh" mesh="motor" material="motor"/>
+    <geom type="box" size="0.0035 0.0012 0.0012" pos="0.012 0 0.0101" rgba="1 1 0.2 1" contype="0" conaffinity="0" mass="0"/>
+    <body name="rotorA">
+      <joint name="thA" type="hinge" axis="0 0 1"/>
+      <inertial pos="0 0 0.0315" mass="0.016" diaginertia="1.25e-06 1.25e-06 2.5e-06"/>
+      <geom type="mesh" mesh="rotor_gear" material="rotor" mass="0"/>
+      <geom type="mesh" mesh="dowel" material="motor" mass="0"/>
+      <geom type="box" size="0.0035 0.0012 0.0012" pos="0.012 0 0.0361" rgba="1 1 1 1" contype="0" conaffinity="0" mass="0"/>
+    </body>
+    <body name="link">
+      <joint name="phi" type="hinge" axis="0 0 1" damping="0.0"/>
+      <geom type="mesh" mesh="link_lower" material="link"/>
+      <geom type="mesh" mesh="link_upper" material="link"/>
+      <body name="statorB" pos="0.03414 0 0" quat="0.998933 0 0 0.046183">
+        <joint name="sB" type="hinge" axis="0 0 1"/>
+        <geom type="mesh" mesh="stator_gear_B" material="stator"/>
+        <geom type="mesh" mesh="motor" material="motor"/>
+        <geom type="box" size="0.0035 0.0012 0.0012" pos="0.012 0 0.0101" rgba="1 1 0.2 1" contype="0" conaffinity="0" mass="0"/>
+        <body name="rotorB">
+          <joint name="rB" type="hinge" axis="0 0 1"/>
+          <inertial pos="0 0 0.0315" mass="0.016" diaginertia="1.25e-06 1.25e-06 2.5e-06"/>
+          <geom type="mesh" mesh="rotor_gear" material="rotor" mass="0"/>
+          <geom type="mesh" mesh="dowel" material="motor" mass="0"/>
+      <geom type="mesh" mesh="dowel" material="motor" mass="0"/>
+          <geom type="box" size="0.0035 0.0012 0.0012" pos="0.012 0 0.0361" rgba="1 1 1 1" contype="0" conaffinity="0" mass="0"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <tendon><fixed name="rotor_mesh"><joint joint="rB" coef="1"/><joint joint="thA" coef="1.0"/></fixed></tendon>
+  <equality>
+    <joint name="stator_mesh" joint1="sB" joint2="phi" polycoef="0 1.0 0 0 0"/>
+    <tendon name="rotor_mesh" tendon1="rotor_mesh"/>
+  </equality>
+  <actuator><motor name="mA" joint="thA" gear="1"/><motor name="mB" joint="rB" gear="1"/></actuator>
+</mujoco>

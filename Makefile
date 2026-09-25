@@ -41,6 +41,10 @@ help:
 	@echo "  make yzipper                Y-zipper 3-strip flex<->rigid: stiffness-switch model"
 	@echo "  make yzipper-cad            build the Y-zipper CAD (3 strips + 3-way slider)"
 	@echo "  make sim-yzipper            build CAD + open its soft->rigid MuJoCo viewer"
+	@echo "  make chain-motor            2-cell Variable Chain Motor: kinematics, 2S/2P envelopes, eff."
+	@echo "  make chain-motor-cad        build its CAD (gears, swing link) + interference check"
+	@echo "  make chain-motor-check      MuJoCo dynamic checks (hinge neutrality, lead swap, inertia)"
+	@echo "  make sim-chain-motor        build CAD + open its bending-chain MuJoCo viewer"
 
 # --- centre-output cycloidal ------------------------------------------------
 .PHONY: cycloidal-center
@@ -191,3 +195,20 @@ yzipper-cad:
 .PHONY: sim-yzipper
 sim-yzipper: yzipper-cad
 	$(PY) yzipper/sim.py $(REV)
+
+# --- 2-cell Variable Chain Motor (Tada et al. IROS 2025): geared BLDC cells that bend ---
+.PHONY: chain-motor
+chain-motor:
+	$(PY) chain-motor/chain.py
+
+.PHONY: chain-motor-cad
+chain-motor-cad:
+	$(PY) chain-motor/cad.py
+
+.PHONY: chain-motor-check
+chain-motor-check: chain-motor-cad
+	$(PY) chain-motor/sim.py check
+
+.PHONY: sim-chain-motor
+sim-chain-motor: chain-motor-cad
+	$(PY) chain-motor/sim.py $(REV)
