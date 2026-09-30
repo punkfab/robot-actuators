@@ -94,6 +94,7 @@ robot-actuators/
 ├── chain-motor/               # 2-cell Variable Chain Motor (geared BLDC cells that bend; IROS 2025)
 ├── friction/                  # extended gearbox friction (BAM M1–M6) + per-step MuJoCo updater
 ├── sts3215/                   # SO-101 servo real2sim: BAM model, record → replay → fit, gate re-checks
+├── robstride/                 # RobStride QDD: specs, MIT-mode MuJoCo model, sizing, thermal, bench sysid, CAD
 └── mujoco/
     ├── actuator.py            # MotorSpec + ActuatorSpec: motor × total ratio → joint + servo numbers
     ├── testbench.xml          # Layer-A sizing scene (real meshes + load arm + payload)

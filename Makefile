@@ -51,6 +51,10 @@ help:
 	@echo "  make sts3215-compare        SO-101: stock MJCF servo vs BAM STS3215 models (sag, step...)"
 	@echo "  make sts3215-crosscheck     re-run software-mfg's workcell gate with BAM servos"
 	@echo "  make sts3215-synthetic      replay + fit pipeline self-test on synthetic logs"
+	@echo "  make robstride              RobStride spec table + thermal fit to the overload tables"
+	@echo "  make robstride-demo         size, tune and verify a 3-DOF arm on RobStrides"
+	@echo "  make robstride-bench        pendulum-bench sysid self-test (recover a known RS03)"
+	@echo "  make robstride-cad          fetch vendor STEPs, normalize (output flange up), line-up"
 
 # --- centre-output cycloidal ------------------------------------------------
 .PHONY: cycloidal-center
@@ -243,3 +247,19 @@ sts3215-crosscheck:
 sts3215-synthetic:
 	$(PY) sts3215/replay.py --synthetic
 	$(PY) sts3215/fit.py --synthetic
+
+# --- RobStride QDD actuators ------------------------------------------------
+.PHONY: robstride robstride-demo robstride-bench robstride-cad
+robstride:
+	$(PY) robstride/specs.py
+	$(PY) robstride/thermal.py
+	$(PY) robstride/can_mit.py
+
+robstride-demo:
+	$(PY) robstride/demo.py
+
+robstride-bench:
+	$(PY) robstride/bench.py --synthetic RS03
+
+robstride-cad:
+	$(PY) robstride/cad.py

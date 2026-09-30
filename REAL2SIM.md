@@ -32,6 +32,11 @@ Two external references set the recipe:
     - re-check the rest of software-mfg's arm gates: the toolchange carry and the cell hand-off
   - autobot scores reach kinematically, so sag isn't in its ranking yet. A dynamic settle per
     candidate would add it.
+- **RobStride QDD** (`robstride/`): MIT law + T-N envelope + thermal (fitted to the
+  vendor's overload tables) + Katz-form gearbox prior; sizing from inverse dynamics;
+  pendulum bench (regression + trajectory polish, verified on synthetic RS03).
+  - Next: record a real unit (`record.py --check` first), backlash (~0.005 rad per
+    Katz), Kt saturation, Katz's impact rule and the Cheetah IMF as sizing checks.
 - **Our own drives** (cycloidal, planetary, capstan):
   - `Friction.from_efficiency` gives a prior before printing.
   - A printable pendulum bench is the way to identify the real part. It uses the same four
