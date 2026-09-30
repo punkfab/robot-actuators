@@ -1,0 +1,16 @@
+{
+  "model": "m6",
+  "friction_scale": 1.4038381311080288,
+  "gain_scale": 0.851263780958684,
+  "armature_scale": 1.0025026531890275,
+  "train": [
+    "elbow_flex_chirp_100g_synthetic",
+    "elbow_flex_ramp_100g_synthetic",
+    "elbow_flex_steps_100g_synthetic"
+  ],
+  "val": [
+    "elbow_flex_sub_100g_synthetic"
+  ],
+  "mae_train": 0.022029853257794916,
+  "mae_val": 0.022706073891825586
+}

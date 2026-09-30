@@ -45,6 +45,12 @@ help:
 	@echo "  make chain-motor-cad        build its CAD (gears, swing link) + interference check"
 	@echo "  make chain-motor-check      MuJoCo dynamic checks (hinge neutrality, lead swap, inertia)"
 	@echo "  make sim-chain-motor        build CAD + open its bending-chain MuJoCo viewer"
+	@echo "  make friction               extended friction models (BAM M1-M6): fitted-servo η table"
+	@echo "  make friction-check         MuJoCo pendulum bench: sim obeys the friction models"
+	@echo "  make actuator-bench         hybrid 40:1 on the MuJoCo test bench (scenarios A-F)"
+	@echo "  make sts3215-compare        SO-101: stock MJCF servo vs BAM STS3215 models (sag, step...)"
+	@echo "  make sts3215-crosscheck     re-run software-mfg's workcell gate with BAM servos"
+	@echo "  make sts3215-synthetic      replay + fit pipeline self-test on synthetic logs"
 
 # --- centre-output cycloidal ------------------------------------------------
 .PHONY: cycloidal-center
@@ -212,3 +218,28 @@ chain-motor-check: chain-motor-cad
 .PHONY: sim-chain-motor
 sim-chain-motor: chain-motor-cad
 	$(PY) chain-motor/sim.py $(REV)
+
+# --- extended gearbox friction (after Rhoban BAM, ICRA 2025) -----------------
+.PHONY: friction
+friction:
+	$(PY) friction/models.py
+
+.PHONY: friction-check
+friction-check:
+	$(PY) friction/bench.py
+
+.PHONY: actuator-bench
+actuator-bench:
+	$(PY) mujoco/run.py
+
+# --- STS3215 / SO-101 real2sim (BAM actuator model) --------------------------
+.PHONY: sts3215-compare sts3215-crosscheck sts3215-synthetic
+sts3215-compare:
+	$(PY) sts3215/compare.py
+
+sts3215-crosscheck:
+	$(PY) sts3215/crosscheck.py
+
+sts3215-synthetic:
+	$(PY) sts3215/replay.py --synthetic
+	$(PY) sts3215/fit.py --synthetic

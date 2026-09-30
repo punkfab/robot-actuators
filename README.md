@@ -92,6 +92,8 @@ robot-actuators/
 │   ├── efficiency.py          # Layer B: two-stage η (planetary × cycloidal) + needle-bearing sweep
 │   └── out/                   # generated .step + .stl for all 8 parts + assembly.step
 ├── chain-motor/               # 2-cell Variable Chain Motor (geared BLDC cells that bend; IROS 2025)
+├── friction/                  # extended gearbox friction (BAM M1–M6) + per-step MuJoCo updater
+├── sts3215/                   # SO-101 servo real2sim: BAM model, record → replay → fit, gate re-checks
 └── mujoco/
     ├── actuator.py            # MotorSpec + ActuatorSpec: motor × total ratio → joint + servo numbers
     ├── testbench.xml          # Layer-A sizing scene (real meshes + load arm + payload)
@@ -357,11 +359,16 @@ the holding loop. `actuator.py`'s `servo_report()` prints this table for the cur
 ### Torque-based (load-dependent) efficiency
 
 Efficiency isn't a flat number — a roughly constant **no-load drag** must be overcome before
-useful torque appears, so η rises from 0 toward η∞ as load grows. This is realized in the sim
-for free: **gear carries η∞ (0.83), joint frictionloss carries the drag (80 mN·m at output)**,
-which reproduces `η(T) = η∞·T/(T+drag)`. The *operating* efficiency therefore tops out ~81% at
-peak torque (peak load ≠ infinite load), not 83%. η∞ is itself the two-stage product
-(planetary 0.97 × cyclo 0.86).
+useful torque appears, so η rises from 0 toward η∞ as load grows: `η(T) = η∞·T/(T+drag)`.
+The *operating* efficiency therefore tops out ~81% at peak torque (peak load ≠ infinite load),
+not 83%. η∞ is itself the two-stage product (planetary 0.97 × cyclo 0.86).
+
+In the sim, the gear carries the **ideal** Kt·N and every loss lives in an extended,
+load-dependent friction model ([`friction/`](friction/), after Rhoban's BAM). It's updated
+every step: `budget = Kc + |Km·τm − Ke·τe|`. Kc is chosen so the drive curve above is unchanged,
+but holding and backdriving now feel gear friction too. The old approach (gear = η∞, Coulomb
+frictionloss = drag) got driving right but made the motor pay τe/η just to *hold* a load.
+`python mujoco/run.py --m1` runs the old model for comparison.
 
 ### Back-EMF and the torque-speed curve
 
@@ -391,18 +398,24 @@ max static payload  ~1.95 kg @ 150 mm (peak) / ~0.61 kg (continuous)
 output resolution . 0.214° (Hall × 40)   backlash ~0.08°
 ```
 
-**Scenario A — free accel:** output reaches ~30 rad/s in 50 ms; simulated effective
-inertia (46.8e-4) **matches the hand calc** of arm+payload+armature → the model is
+**Scenario A — free accel:** output reaches ~32 rad/s in 50 ms; simulated effective
+inertia (47.8e-4) **matches the hand calc** of arm+payload+armature → the model is
 trustworthy.
 **Scenario B — lift 100 g @ 150 mm:** needs 0.16 of 2.87 N·m available → lifts easily.
 **Scenario C — unpowered hold:** backdrives under load → **backdrivable**, the desired
-property for a compliant, safe arm.
+property for a compliant, safe arm. With load-dependent friction it self-holds up to
+~0.096 N·m unpowered (0.080 with the old model). The backdrive efficiency is a symmetric
+prior (η_back = η∞) until it's measured.
 **Scenario D — efficiency vs load (measured in sim):** η climbs 32% → 46% → 59% → 69% as
 output torque rises 0.05 → 0.40 N·m, and the **measured η matches the model** — the load
 curve emerges from the gear+frictionloss physics, not a typed-in constant.
 **Scenario E — torque-speed curve (traced in a sim spin-up):** under full throttle the
 delivered torque holds ~2.87 N·m to ~249 rpm, then droops toward zero at 388 rpm — the
 back-EMF envelope, measured as the output accelerates (sample points scale with no-load speed).
+**Scenario F — holding window:** the current band that keeps the loaded arm still. Holding
+100 g at 150 mm needs only **199 mA** before it backdrives (sim bisection = analytic), against
+**361 mA** with the old model. That's 1.8× less, because gear friction helps hold a load.
+Above 1.07 A it lifts.
 
 The `--view` demo is a real-time kinematic scene of the **whole hybrid**: the cycloidal
 **output** turns at 0.25 rev/s, the **planet carrier** at 10×, the **gold sun** at 40×, and the
