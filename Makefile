@@ -55,6 +55,8 @@ help:
 	@echo "  make robstride-demo         size, tune and verify a 3-DOF arm on RobStrides"
 	@echo "  make robstride-bench        pendulum-bench sysid self-test (recover a known RS03)"
 	@echo "  make robstride-cad          fetch vendor STEPs, normalize (output flange up), line-up"
+	@echo "  make qdd-liquid             direct-liquid-cooled high-current QDD motor: first-order sizing"
+	@echo "  make qdd-liquid-fea         nonlinear field solution + copper/iron variants (about 5 minutes)"
 	@echo "  make muscle                 matrix muscle: SMA cell, bundle, crosstalk sheet"
 	@echo "  make muscle-sm              slow-manifold feed-forward (Bettini 2026) on the SMA cell"
 	@echo "  make muscle-hasel           HASEL pouch cell (Kellaris model), sized beside the SMA unit"
@@ -284,3 +286,12 @@ muscle-hasel:
 .PHONY: muscle-compare
 muscle-compare:
 	$(PY) muscle/compare.py
+
+.PHONY: qdd-liquid
+qdd-liquid:
+	$(PY) qdd-liquid/design.py
+
+.PHONY: qdd-liquid-fea
+qdd-liquid-fea:
+	$(PY) qdd-liquid/fea.py
+	$(PY) qdd-liquid/study.py

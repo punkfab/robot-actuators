@@ -95,6 +95,7 @@ robot-actuators/
 ├── friction/                  # extended gearbox friction (BAM M1–M6) + per-step MuJoCo updater
 ├── sts3215/                   # SO-101 servo real2sim: BAM model, record → replay → fit, gate re-checks
 ├── robstride/                 # RobStride QDD: specs, MIT-mode MuJoCo model, sizing, thermal, bench sysid, CAD
+├── qdd-liquid/                # direct-liquid-cooled high-current QDD motor: first-order sizing (heat vs saturation)
 ├── muscle/                    # matrix muscle: SMA cells, recruitment, crosstalk sheet; HASEL cell + slow-manifold control (Bettini 2026)
 └── mujoco/
     ├── actuator.py            # MotorSpec + ActuatorSpec: motor × total ratio → joint + servo numbers
