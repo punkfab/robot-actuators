@@ -55,6 +55,10 @@ help:
 	@echo "  make robstride-demo         size, tune and verify a 3-DOF arm on RobStrides"
 	@echo "  make robstride-bench        pendulum-bench sysid self-test (recover a known RS03)"
 	@echo "  make robstride-cad          fetch vendor STEPs, normalize (output flange up), line-up"
+	@echo "  make muscle                 matrix muscle: SMA cell, bundle, crosstalk sheet"
+	@echo "  make muscle-sm              slow-manifold feed-forward (Bettini 2026) on the SMA cell"
+	@echo "  make muscle-hasel           HASEL pouch cell (Kellaris model), sized beside the SMA unit"
+	@echo "  make muscle-compare         SMA vs HASEL on the same control test (a few minutes)"
 
 # --- centre-output cycloidal ------------------------------------------------
 .PHONY: cycloidal-center
@@ -263,3 +267,20 @@ robstride-bench:
 
 robstride-cad:
 	$(PY) robstride/cad.py
+
+.PHONY: muscle
+muscle:
+	$(PY) muscle/cell.py
+	cd muscle && ../$(PY) bundle.py && ../$(PY) sheet.py
+
+.PHONY: muscle-sm
+muscle-sm:
+	$(PY) muscle/slowmanifold.py
+
+.PHONY: muscle-hasel
+muscle-hasel:
+	$(PY) muscle/hasel.py
+
+.PHONY: muscle-compare
+muscle-compare:
+	$(PY) muscle/compare.py
