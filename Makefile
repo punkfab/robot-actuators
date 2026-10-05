@@ -59,6 +59,7 @@ help:
 	@echo "  make qdd-liquid-fea         nonlinear field solution + copper/iron variants (about 5 minutes)"
 	@echo "  make qdd-liquid-cad         shallow-slot motor assembly: STEP, interference checks, cutaway render"
 	@echo "  make qdd-liquid-jacket      same motor, solid conductors, jacket-only cooling: what it gives up"
+	@echo "  make qdd-liquid-render      Blender renders of the motor: cutaway and wound stator"
 	@echo "  make muscle                 matrix muscle: SMA cell, bundle, crosstalk sheet"
 	@echo "  make muscle-sm              slow-manifold feed-forward (Bettini 2026) on the SMA cell"
 	@echo "  make muscle-hasel           HASEL pouch cell (Kellaris model), sized beside the SMA unit"
@@ -305,3 +306,7 @@ qdd-liquid-cad:
 .PHONY: qdd-liquid-jacket
 qdd-liquid-jacket:
 	$(PY) qdd-liquid/jacket.py
+
+.PHONY: qdd-liquid-render
+qdd-liquid-render:
+	$(PY) qdd-liquid/render.py

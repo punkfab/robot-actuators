@@ -10,6 +10,7 @@ gear reduction.
 | `fea.py` | nonlinear 2-D field solution of the same design: torque against current |
 | `study.py` | the two together across geometry variants (`make qdd-liquid-fea`, about 5 minutes) |
 | `jacket.py` | the same motor with solid conductors and only the jacket (`make qdd-liquid-jacket`) |
+| `render.py` | Blender renders of that assembly (`make qdd-liquid-render`) |
 | `cad.py` | the shallow-slot design as an assembly: STEP, interference checks, cutaway (`make qdd-liquid-cad`) |
 
 Nothing here has been built.
@@ -51,7 +52,12 @@ outside and pressed into the jacket, Ø64 mm free bore inside the rotor.
 In this design the cooling is the limit again, not the iron: the pump runs out at 43 A/mm²
 and torque per amp is still at 92% there.
 
-![cutaway](out/cad.png)
+![cutaway render](out/render/cutaway.png)
+
+![wound stator](out/render/stator.png)
+
+(`make qdd-liquid-render`: Blender, from the same assembly. The blue in the jacket is the
+coolant. `out/cad.png` is the quick OpenSCAD cutaway `cad.py` writes.)
 
 **The CAD** (`make qdd-liquid-cad`) builds 13 part types from the same `Design` the field
 solver uses: stator core, 24 coils, two-piece jacket with its annular channel, rotor yoke,
