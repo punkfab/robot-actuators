@@ -12,7 +12,9 @@ gear reduction.
 | `jacket.py` | the same motor with solid conductors and only the jacket (`make qdd-liquid-jacket`) |
 | `render.py` | Blender renders of that assembly (`make qdd-liquid-render`) |
 | `cad.py` | the shallow-slot design as an assembly: STEP, interference checks, cutaway (`make qdd-liquid-cad`) |
-| `paper/` | preprint: `main.tex`, `figures.py` (`make qdd-liquid-paper`, then `make qdd-liquid-paper-pdf`), `liquid-cooled-qdd-preprint-v2.pdf` |
+| `femm_check.py` | the same motor drawn and solved in FEMM 4.2: torque against `fea.py` (`make qdd-liquid-femm`) |
+| `thermal_check.py` | the jacket-only slot as a thermal field problem in FEMM, against `jacket.py` (`make qdd-liquid-thermal`) |
+| `paper/` | preprint: `main.tex`, `figures.py` (`make qdd-liquid-paper`, then `make qdd-liquid-paper-pdf`), `liquid-cooled-qdd-preprint-v3.pdf` |
 
 Nothing here has been built.
 
@@ -123,6 +125,53 @@ the result depends on how the coil is seated:
 
 Every thermal number in this model is assumed, and it is lumped, not a thermal field
 solution.
+
+## Independent checks in FEMM (`femm_check.py`, `thermal_check.py`)
+
+Both need FEMM 4.2 (femm.info), which is a Windows program. Here it runs under wine with no
+display: install it into its own prefix (`WINEPREFIX=~/.wine-femm wine femm42bin_x64_21apr2019.exe
+/VERYSILENT /DIR=C:\\femm42`), and the scripts drive it with generated Lua.
+
+**Field solver.** The shallow-slot cross-section is redrawn in FEMM from the same `Design`,
+with the same B-H points, winding rule and current angle. The mesh (FEMM's, 132k triangles
+against our 31k), the nonlinear solver and the torque method (weighted stress tensor against
+Arkkio) are FEMM's own.
+
+| | `fea.py` | FEMM | difference |
+|---|---|---|---|
+| no-load air-gap fundamental | 1.0529 T | 1.0529 T | +0.01% |
+| torque at 3 A/mm² | 1.611 N·m | 1.621 N·m | −0.6% |
+| 14 A/mm² | 7.444 | 7.450 | −0.1% |
+| 26 A/mm² | 13.495 | 13.486 | +0.1% |
+| 32.5 A/mm² (the 850 W point) | 16.578 | 16.553 | +0.2% |
+| 43 A/mm² (cooling limit) | 21.138 | 21.072 | +0.3% |
+| 67 A/mm² | 28.956 | 28.779 | +0.6% |
+| 100 A/mm² | 34.494 | 34.269 | +0.7% |
+
+Four other current angles at 32.5 A/mm² (±0.25, ±0.5 rad) agree within 0.3%. So `fea.py`
+solves this 2-D problem correctly, into deep saturation. What this does not check is
+anything the two share: the 2-D assumption, the B-H data, one rotor position.
+
+**Jacket-only thermal path.** One slot pitch as a heat-flow field problem: tooth, yoke,
+liner, the eight insulated conductors, the voids between them, with the same coefficients
+as `jacket.py`. Torque with the hottest copper at 180 °C and coolant at 60 °C:
+
+| case | lumped (`jacket.py`) | field solution |
+|---|---|---|
+| as modelled: liner 0.2 W/mK, voids air | 11.7 N·m, 343 W | 12.4 N·m, 385 W |
+| loose coil, 0.05 mm air gap at the liner | 9.8 N·m | 10.6 N·m |
+| poor fit to the jacket | 9.7 N·m | 10.1 N·m |
+| turbulent coolant film | 12.6 N·m | 13.5 N·m |
+| potted at 1 W/mK | 14.1 N·m | 14.9 N·m |
+| potted, good film, good fit | 17.1 N·m | 18.5 N·m |
+
+The lumped model was conservative: its resistance is 210 K per (W per mm of stack per
+slot) against 187 from the field (11% lower), because heat also leaves through the slot
+back and spreads in the tooth. The four turns are within 3% of each other, so one copper
+temperature is a fair description. The jacket-only motor therefore reaches about 75% of
+the hollow design's 850 W torque, not 70%. The coefficients themselves (liner
+conductivity, fit, film) are still assumed, and they move the answer far more than the
+lumping did. The result does not change with mesh size (0.5 to 0.1 mm).
 
 ## What the field solution found (`study.py`)
 

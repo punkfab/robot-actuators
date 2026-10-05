@@ -47,9 +47,10 @@ directly, run hard, and geared less. The design studied is a
 \diameter\SI{120}{mm}, 24-slot, 22-pole motor whose coils are hollow rectangular
 copper carrying dielectric oil in the bore, inside an outer jacket fed with the
 coldest coolant. It is evaluated with a first-order loss and hydraulic model, a
-nonlinear two-dimensional magnetostatic field solution written for the study,
-a lumped thermal model of the jacket-only alternative, and a parametric CAD
-assembly with interference checks, all driven by one design record.
+nonlinear two-dimensional magnetostatic field solution that agrees with FEMM
+within \SI{0.7}{\percent}, a thermal field solution of the jacket-only
+alternative, and a parametric CAD assembly with interference checks, all
+driven by one design record.
 \emph{Nothing has been built or measured.} In simulation the motor gives
 \SI{16.6}{\Nm} continuously for \SI{850}{W} of heat with the copper at
 \SI{126}{\celsius}, and \SI{21.3}{\Nm} at the limit of a
@@ -58,7 +59,7 @@ by air. Three results ran against the hypothesis. The saturation limit
 first assumed was too pessimistic, by a quarter to a third of the torque. Trading copper for iron at
 fixed size does not raise torque at a given heat: eleven geometry variants land
 within about \SI{10}{\percent} of each other. And a much simpler motor, with
-solid conductors and only the jacket, reaches about \SI{70}{\percent} of the
+solid conductors and only the jacket, reaches about \SI{75}{\percent} of the
 hollow design's torque, so it is the one to build first. A
 \num{3}:\num{1} reduction then matches a commercial \num{9}:\num{1} actuator's
 continuous torque with a ninth of the reflected inertia, and spends about five
@@ -278,7 +279,7 @@ air-gap elements~\cite{arkkio1987},
 $T = \tfrac{L}{\mu_0 (r_o-r_i)}\int r B_r B_\theta\,dS$. The current angle is
 chosen by a sweep at each end of the current range.
 
-Two checks on the solver, both on the final design:
+Three checks on the solver, all on the final design:
 \begin{itemize}
 \item \emph{Mesh refinement.} At \SI{32.5}{\Amm}, torque is \num{16.56},
   \num{16.58} and \SI{16.55}{\Nm} on \num{17986}, \num{30764} and \num{76023}
@@ -286,23 +287,66 @@ Two checks on the solver, both on the final design:
 \item \emph{Closed form.} At \SI{3}{\Amm}, well below saturation, the solver
   gives \SI{1.611}{\Nm}. Equation~\eqref{eq:torque} with the solver's own
   no-load $B_1=\SI{1.053}{T}$ gives \SI{1.644}{\Nm}, \SI{2}{\percent} higher.
+\item \emph{An independent solver.} The same cross-section was drawn in
+  FEMM~4.2~\cite{meeker2018} from the same design record, with the same B--H
+  points, winding and current angle. The mesh (\num{131979} triangles), the
+  nonlinear solver and the torque method (weighted stress tensor) are FEMM's.
+  Table~\ref{tab:femm} gives the comparison: the no-load air-gap field agrees
+  to four figures and torque within \SI{0.7}{\percent} from \SI{3}{\Amm} to
+  \SI{100}{\Amm}. Four other current angles at \SI{32.5}{\Amm} agree within
+  \SI{0.3}{\percent}.
 \end{itemize}
-Neither is a validation against a measured machine or an independent code, and
-the solver is two-dimensional at one rotor position (Section~\ref{sec:limits}).
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+ & this solver & FEMM & difference\\
+\midrule
+no-load air-gap field $B_1$ & \SI{1.0529}{T} & \SI{1.0529}{T} & \SI{+0.01}{\percent}\\
+torque at \SI{3}{\Amm} & \SI{1.611}{\Nm} & \SI{1.621}{\Nm} & \SI{-0.6}{\percent}\\
+\SI{14}{\Amm} & \SI{7.444}{\Nm} & \SI{7.450}{\Nm} & \SI{-0.1}{\percent}\\
+\SI{26}{\Amm} & \SI{13.495}{\Nm} & \SI{13.486}{\Nm} & \SI{+0.1}{\percent}\\
+\SI{32.5}{\Amm} & \SI{16.578}{\Nm} & \SI{16.553}{\Nm} & \SI{+0.2}{\percent}\\
+\SI{43}{\Amm} & \SI{21.138}{\Nm} & \SI{21.072}{\Nm} & \SI{+0.3}{\percent}\\
+\SI{67}{\Amm} & \SI{28.956}{\Nm} & \SI{28.779}{\Nm} & \SI{+0.6}{\percent}\\
+\SI{100}{\Amm} & \SI{34.494}{\Nm} & \SI{34.269}{\Nm} & \SI{+0.7}{\percent}\\
+\bottomrule
+\end{tabular}
+\caption{The field solver against FEMM~4.2 on the shallow-slot design: same
+geometry and material data, independent mesh, solver and torque method.}
+\label{tab:femm}
+\end{table}
+
+The FEMM comparison shows that the solver solves this two-dimensional problem
+correctly into deep saturation. It does not test what the two share: the
+two-dimensional assumption, the B--H data and the single rotor position
+(Section~\ref{sec:limits}). Neither has been compared with a measured machine.
 
 \subsection{Jacket-only thermal path}
 \label{sec:jacketmodel}
 
 For the alternative with solid conductors, all copper heat crosses, per tooth:
 conductor insulation and slot liner, tooth, yoke, the press fit to the jacket,
-and the coolant film. We model that as five resistances in series per metre of
-stack, with a liner conductivity of \SI{0.2}{W\per\metre\per\kelvin}
-(unpotted), in-plane lamination conductivity
-\SI{25}{W\per\metre\per\kelvin}, a fit conductance of
-\SI{2000}{W\per\metre\squared\per\kelvin} and a film coefficient of
-\SI{1500}{W\per\metre\squared\per\kelvin}. All four are assumed. End-turn heat
-is taken to conduct along the copper into the slot. This is a lumped model,
-not a thermal field solution.
+and the coolant film. We solve this as a two-dimensional heat-flow field
+problem in FEMM over one slot pitch: tooth and yoke iron, the liner, the eight
+insulated conductors with a uniform heat source, the voids between them, and
+the slot opening. The stator's outer surface is a convection boundary
+representing the press fit and coolant film in series; the bore and the tooth
+centre-lines are adiabatic. The coefficients are a liner and insulation
+conductivity of \SI{0.2}{W\per\metre\per\kelvin} (unpotted, voids filled with
+air), in-plane lamination conductivity \SI{25}{W\per\metre\per\kelvin}, a fit
+conductance of \SI{2000}{W\per\metre\squared\per\kelvin} and a film
+coefficient of \SI{1500}{W\per\metre\squared\per\kelvin}. All four are
+assumed. End-turn heat is taken to conduct along the copper into the slot, so
+the whole copper loss crosses this section. The result is unchanged for
+element sizes from \SI{0.5}{mm} to \SI{0.1}{mm}.
+
+A lumped model of the same path, five resistances in series, was built first.
+Its resistance is \SI{12}{\percent} higher than the field solution's
+(210 against \SI{187}{K} per \si{W\per\milli\metre} of stack per slot),
+because it omits heat leaving through the slot back and spreading in the
+tooth. The field values are used below.
 
 \subsection{CAD as a check}
 \label{sec:cad}
@@ -488,8 +532,8 @@ leaves through the tooth. With coolant at \SI{60}{\celsius}:
 \toprule
  & torque & copper loss & hottest copper\\
 \midrule
-jacket only & \SI{9.6}{\Nm} & \SI{200}{W} & \SI{130}{\celsius}\\
-jacket only & \SI{11.7}{\Nm} & \SI{343}{W} & \SI{180}{\celsius}\\
+jacket only & \SI{10.2}{\Nm} & \SI{225}{W} & \SI{130}{\celsius}\\
+jacket only & \SI{12.4}{\Nm} & \SI{385}{W} & \SI{180}{\celsius}\\
 hollow conductors & \SI{16.6}{\Nm} & \SI{793}{W} & \SI{126}{\celsius}\\
 hollow conductors, pump limit & \SI{21.3}{\Nm} & about \SI{1.7}{kW} & \SI{198}{\celsius}\\
 \bottomrule
@@ -498,19 +542,20 @@ hollow conductors, pump limit & \SI{21.3}{\Nm} & about \SI{1.7}{kW} & \SI{198}{\
 \label{tab:jacket}
 \end{table}
 
-The jacket alone gives about \SI{70}{\percent} of the hollow design's
-\SI{850}{W} torque and \SI{55}{\percent} of its limit, with ordinary wire.
+The jacket alone gives about \SI{75}{\percent} of the hollow design's
+\SI{850}{W} torque and \SI{58}{\percent} of its limit, with ordinary wire.
 Figure~\ref{fig:torque} (right) shows why the comparison is close: per watt of
 copper loss the two windings give nearly the same torque, and the hollow
 conductor's advantage is only that its curve continues. It does this well
 because each coil is a single column, so every conductor has a face on a tooth
-wall. The slot liner is \SI{41}{\percent} of the thermal path, the coolant
-film \SI{22}{\percent}, the press fit \SI{16}{\percent}, the tooth
-\SI{15}{\percent} and the yoke \SI{7}{\percent}, so the result depends on how
-the coil is seated: at \SI{180}{\celsius} copper, a loose coil with a
-\SI{0.05}{mm} air gap gives \SI{9.8}{\Nm}, potting at
-\SI{1}{W\per\metre\per\kelvin} gives \SI{14.1}{\Nm}, and potting with a
-turbulent film and a good fit gives \SI{17.1}{\Nm}, which is the hollow
+wall; the four turns are within \SI{3}{\percent} of each other in temperature
+rise. Of that rise, \SI{42}{\percent} is across the press fit and coolant
+film, \SI{20}{\percent} in the iron and \SI{38}{\percent} across the liner and
+insulation, so the result depends on how the coil is seated and how the stator
+is fitted: at \SI{180}{\celsius} copper, a loose coil with a \SI{0.05}{mm}
+air gap gives \SI{10.6}{\Nm}, a poor press fit \SI{10.1}{\Nm}, potting at
+\SI{1}{W\per\metre\per\kelvin} \SI{14.9}{\Nm}, and potting with a
+turbulent film and a good fit \SI{18.5}{\Nm}, which exceeds the hollow
 design's \SI{850}{W} figure.
 
 Our recommendation is therefore to build the jacket-only motor first. It tests
@@ -611,8 +656,8 @@ produced.}
 fifteen minutes excluded, the work in Table~\ref{tab:prompts} took about
 \SI{70}{minutes} of agent working time in two sittings on one day
 (\SI{56}{minutes} for steps 1--3, \SI{13}{minutes} for steps 4--7). This
-paper, its figures and the two solver checks in Section~\ref{sec:fea} were
-additional. The figure measures elapsed session time, not effort that would
+paper, its figures, the solver checks in Section~\ref{sec:fea} and the thermal
+field solution were additional. The figure measures elapsed session time, not effort that would
 compare with a person's hours, and it excludes the author's prior work on
 the hypothesis.
 
@@ -677,7 +722,7 @@ a hypothesis ends at claims that only hardware can test.
 \item \textbf{Thermal coefficients.} Coolant properties are handbook
   approximations; the magnet temperature is an interpolation; every
   coefficient in the jacket-only path is assumed, and Section~\ref{sec:jacket}
-  shows the result moving from \SI{9.8}{\Nm} to \SI{17.1}{\Nm} across
+  shows the result moving from \SI{10.1}{\Nm} to \SI{18.5}{\Nm} across
   plausible values.
 \item \textbf{Manufacture.} A custom hollow conductor, its end bends, its
   hydraulic and electrical joints, insulation that tolerates oil at
@@ -699,7 +744,7 @@ out at nearly the current the pump did. The price of a low ratio is energy,
 since holding torque costs heat in proportion to the square of motor torque.
 And most of the benefit is available without hollow conductors at all: a
 single-column coil cooled only through the tooth reaches about
-\SI{70}{\percent} of the torque with none of the manufacturing risk, so that
+\SI{75}{\percent} of the torque with none of the manufacturing risk, so that
 is the motor to build first.
 
 A natural extension is to other actuator types. The jacket-only result
@@ -712,9 +757,9 @@ machines.
 
 All code, the STEP assembly and the scripts that print every number in this
 paper are at \url{https://github.com/punkfab/robot-actuators} under
-\code{qdd-liquid/}, MIT-licensed. \code{make qdd-liquid}, \code{qdd-liquid-fea},
-\code{qdd-liquid-jacket}, \code{qdd-liquid-cad} and \code{qdd-liquid-paper}
-regenerate the tables and figures. A shorter account is at
+\code{qdd-liquid/}, MIT-licensed. The \code{make} targets listed in the
+README there regenerate the tables and figures; the two FEMM checks need
+FEMM~4.2. A shorter account is at
 \url{https://punkfab.com/blog/liquid-cooled-qdd/}. This preprint is archived at
 \url{https://doi.org/10.5281/zenodo.23155222}.
 

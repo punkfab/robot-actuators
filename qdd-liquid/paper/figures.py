@@ -68,7 +68,10 @@ def main():
     tq_h = np.array([v.t_at_j(j) for j in v.j_ok])
     # jacket only: slot copper from 80 to 200 C
     temps = np.arange(80, 201, 10)
-    jrows = [jk.jacket_only(sol, p, t) for t in temps]
+    # resistance from the thermal field solution (thermal_check.py) in place of the lumped one
+    r_field = json.loads((HERE.parent / "out" / "femm" / "thermal.json").read_text())[0]["r_max"]
+    scale = jk.resistance(sol, p)[0] / r_field
+    jrows = [(w * scale, j * sqrt(scale), rise * scale) for w, j, rise in (jk.jacket_only(sol, p, t) for t in temps)]
     cu_j = np.array([r[0] for r in jrows])
     tq_j = np.array([t_sol(r[1]) for r in jrows])
     air = dz.air_cooled(D, 88.0)                 # current from the sizing model, torque from the field solution

@@ -60,6 +60,8 @@ help:
 	@echo "  make qdd-liquid-cad         shallow-slot motor assembly: STEP, interference checks, cutaway render"
 	@echo "  make qdd-liquid-jacket      same motor, solid conductors, jacket-only cooling: what it gives up"
 	@echo "  make qdd-liquid-render      Blender renders of the motor: cutaway and wound stator"
+	@echo "  make qdd-liquid-femm        cross-check of the field solver against FEMM 4.2 (needs wine + FEMM)"
+	@echo "  make qdd-liquid-thermal     jacket-only motor: thermal field solution in FEMM against the lumped model"
 	@echo "  make qdd-liquid-paper       figures and numbers for the paper (qdd-liquid/paper); -paper-pdf builds the PDF"
 	@echo "  make muscle                 matrix muscle: SMA cell, bundle, crosstalk sheet"
 	@echo "  make muscle-sm              slow-manifold feed-forward (Bettini 2026) on the SMA cell"
@@ -311,6 +313,15 @@ qdd-liquid-jacket:
 .PHONY: qdd-liquid-render
 qdd-liquid-render:
 	$(PY) qdd-liquid/render.py
+
+# FEMM 4.2 under wine (WINEPREFIX=~/.wine-femm, C:\\femm42); see qdd-liquid/README.md
+.PHONY: qdd-liquid-femm
+qdd-liquid-femm:
+	$(PY) qdd-liquid/femm_check.py
+
+.PHONY: qdd-liquid-thermal
+qdd-liquid-thermal:
+	$(PY) qdd-liquid/thermal_check.py
 
 .PHONY: qdd-liquid-paper
 qdd-liquid-paper:

@@ -28,3 +28,11 @@ qdd-liquid/paper/main.log
 qdd-liquid/paper/main.out
 qdd-liquid/paper/main.bbl
 qdd-liquid/paper/main.blg
+
+# FEMM solutions and generated scripts (the .fem/.feh problem files and the json results are kept)
+qdd-liquid/out/femm/*.ans
+qdd-liquid/out/femm/*.anh
+qdd-liquid/out/femm/*.lua
+qdd-liquid/out/femm/*.txt
+qdd-liquid/out/femm/*.png
+qdd-liquid/out/femm/xauth
