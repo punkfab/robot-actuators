@@ -42,8 +42,8 @@ def pick_turns(d, j=26e6):
 
 
 class Variant:
-    def __init__(self, label, d, steel="silicon steel", **motor_kw):
-        self.label, self.d, self.steel = label, pick_turns(d), steel
+    def __init__(self, label, d, steel="silicon steel", keep_turns=False, **motor_kw):
+        self.label, self.d, self.steel = label, (d if keep_turns else pick_turns(d)), steel
         self.motor = fea.Motor(self.d, steel=steel, **motor_kw)
         self.torque = self.motor.curve([fea.amp_turns_of(self.d, j) for j in J_LEVELS])
         self.kt0 = self.torque[0] / J_LEVELS[0]                           # N·m per A/m2, unsaturated
@@ -169,5 +169,30 @@ def main():
     print(f"\nwrote {HERE / 'out' / 'study.png'}")
 
 
+def layouts():
+    """Concrete conductors in parallel-sided shallow slots: one column per coil side,
+    as many rows as fit the depth. (slot depth, slot width, conductor pitch across,
+    pitch along the depth, bore, round?)"""
+    base = dz.Design()
+    cands = [
+        ("10 x 5.8 slot, 2.6 x 2.3 rect, Ø1.2 bore", 10, 5.8, 2.6, 2.3, 1.2, False),
+        ("10 x 5.8 slot, 2.6 x 3.1 rect, Ø1.4 bore", 10, 5.8, 2.6, 3.1, 1.4, False),
+        ("10 x 4.8 slot, Ø2.0/1.0 round capillary", 10, 4.8, 2.1, 2.1, 1.0, True),
+        (" 8 x 5.8 slot, 2.6 x 2.4 rect, Ø1.2 bore", 8, 5.8, 2.6, 2.4, 1.2, False),
+        ("12 x 5.8 slot, 2.6 x 2.3 rect, Ø1.2 bore", 12, 5.8, 2.6, 2.3, 1.2, False),
+        ("10 x 6.6 slot, 3.0 x 2.3 rect, Ø1.3 bore", 10, 6.6, 3.0, 2.3, 1.3, False),
+    ]
+    print(f"  {'layout':42} {'turns':>5} {'fill':>5} {'850 W':>7} {'A rms':>6} {'bar':>5} {'Cu max':>7} {'limit':>7} {'bore':>5}")
+    for label, depth, w, cw, ch, bore, rnd in cands:
+        d = replace(base, slot_depth=depth, slot_w=w, cond_w=cw, cond_h=ch, cond_bore=bore, cond_round=rnd)
+        cols, rows = d.coil_grid()
+        d = replace(d, turns=cols * rows)
+        v = Variant(label, d, keep_turns=True)
+        t, j = v.at_heat(850)
+        c = dz.cooled(d, j)
+        print(f"  {label:42} {d.turns:5d} {2*d.turns*d.cu_area/d.slot_area*100:4.0f}% {t:5.1f}Nm {c['i_rms']:6.0f} "
+              f"{c['dp_bar']:5.2f} {c['t_max']:6.0f}C {v.t_at_j(v.j_cool):5.1f}Nm  Ø{d.bore_free_mm:.0f}")
+
+
 if __name__ == "__main__":
-    main()
+    layouts() if "layouts" in sys.argv else main()

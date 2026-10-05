@@ -57,6 +57,8 @@ help:
 	@echo "  make robstride-cad          fetch vendor STEPs, normalize (output flange up), line-up"
 	@echo "  make qdd-liquid             direct-liquid-cooled high-current QDD motor: first-order sizing"
 	@echo "  make qdd-liquid-fea         nonlinear field solution + copper/iron variants (about 5 minutes)"
+	@echo "  make qdd-liquid-cad         shallow-slot motor assembly: STEP, interference checks, cutaway render"
+	@echo "  make qdd-liquid-jacket      same motor, solid conductors, jacket-only cooling: what it gives up"
 	@echo "  make muscle                 matrix muscle: SMA cell, bundle, crosstalk sheet"
 	@echo "  make muscle-sm              slow-manifold feed-forward (Bettini 2026) on the SMA cell"
 	@echo "  make muscle-hasel           HASEL pouch cell (Kellaris model), sized beside the SMA unit"
@@ -295,3 +297,11 @@ qdd-liquid:
 qdd-liquid-fea:
 	$(PY) qdd-liquid/fea.py
 	$(PY) qdd-liquid/study.py
+
+.PHONY: qdd-liquid-cad
+qdd-liquid-cad:
+	$(PY) qdd-liquid/cad.py
+
+.PHONY: qdd-liquid-jacket
+qdd-liquid-jacket:
+	$(PY) qdd-liquid/jacket.py

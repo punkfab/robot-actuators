@@ -80,6 +80,8 @@ class Motor:
                           bore=s_in - d.tooth_tip, slot_a=s_in, slot_b=s_out,
                           outer=s_out + d.stator_yoke)
             self.gap = (rg, self.r["bore"])
+        assert not (d.slot_w and d.outrunner), "parallel slots: stator-outside only"
+        self.open_w = 2 * self.r["bore"] * sin(open_frac * pi / d.slots)      # slot opening, mm
         self._mesh(h_gap, h_coarse)
         self._materials()
         self._winding()
@@ -90,9 +92,17 @@ class Motor:
         r, th = np.hypot(x, y), np.arctan2(y, x)
         sp_, pp_ = tau / d.slots, tau / d.poles
         in_arc = lambda pitch, frac: np.abs((th + pitch / 2) % pitch - pitch / 2) <= 0.5 * frac * pitch
-        slot = (r > R["slot_a"]) & (r < R["slot_b"]) & in_arc(sp_, d.slot_frac)
+        if d.slot_w:                     # parallel-sided: local (along, across) the slot axis
+            dth = (th + sp_ / 2) % sp_ - sp_ / 2
+            u, v = r * np.cos(dth), r * np.sin(dth)
+            slot = (u > R["slot_a"]) & (u < R["slot_b"]) & (np.abs(v) <= d.slot_w / 2)
+        else:
+            slot = (r > R["slot_a"]) & (r < R["slot_b"]) & in_arc(sp_, d.slot_frac)
         tip_lo, tip_hi = sorted((R["bore"], R["slot_b"] if d.outrunner else R["slot_a"]))
-        opening = (r > tip_lo) & (r < tip_hi) & in_arc(sp_, self.open_frac)
+        if d.slot_w:
+            opening = (r > R["bore"]) & (u <= R["slot_a"]) & (np.abs(v) <= self.open_w / 2)
+        else:
+            opening = (r > tip_lo) & (r < tip_hi) & in_arc(sp_, self.open_frac)
         magnet = (r > R["mag_a"]) & (r < R["mag_b"]) & in_arc(pp_, self.magnet_arc)
         reg = np.full(x.shape, AIR)
         if d.outrunner:
@@ -132,13 +142,24 @@ class Motor:
                                          occ.addLine(pts[3], pts[2]), occ.addCircleArc(pts[2], cp, pts[0])])
                 return occ.addPlaneSurface([loop])
 
-            radii = sorted(set(R.values()))
+            # Parallel slots are boxes whose ends would be tangent to the slot-floor and
+            # slot-back circles; leaving those circles in makes cusps of needle elements
+            # (Newton then never converges). Both sides of them are stator iron anyway.
+            radii = sorted(set(v for k, v in R.items() if not (d.slot_w and k in ("slot_a", "slot_b"))))
             surf = [annulus(0, radii[0])] + [annulus(a, b) for a, b in zip(radii[:-1], radii[1:])]
             sp_, pp_ = tau / d.slots, tau / d.poles
             tip = sorted((R["bore"], R["slot_b"] if d.outrunner else R["slot_a"]))
             for k in range(d.slots):
-                surf.append(wedge(R["slot_a"], R["slot_b"], k * sp_, 0.5 * d.slot_frac * sp_))
-                surf.append(wedge(tip[0], tip[1], k * sp_, 0.5 * self.open_frac * sp_))
+                if d.slot_w:
+                    box = occ.addRectangle(R["slot_a"] * mm, -d.slot_w / 2 * mm, 0,
+                                           (R["slot_b"] - R["slot_a"]) * mm, d.slot_w * mm)
+                    lo = R["bore"] - 0.3                       # opening: a box through the bore circle
+                    gate = occ.addRectangle(lo * mm, -self.open_w / 2 * mm, 0, (R["slot_a"] - lo) * mm, self.open_w * mm)
+                    occ.rotate([(2, box), (2, gate)], 0, 0, 0, 0, 0, 1, k * sp_)
+                    surf += [box, gate]
+                else:
+                    surf.append(wedge(R["slot_a"], R["slot_b"], k * sp_, 0.5 * d.slot_frac * sp_))
+                    surf.append(wedge(tip[0], tip[1], k * sp_, 0.5 * self.open_frac * sp_))
             for k in range(d.poles):
                 surf.append(wedge(R["mag_a"], R["mag_b"], k * pp_, 0.5 * self.magnet_arc * pp_))
             occ.synchronize()
@@ -265,6 +286,9 @@ class Motor:
             a = a + step * da
             if np.linalg.norm(step * da) < tol * max(np.linalg.norm(a), 1e-12):
                 break
+        else:
+            print(f"fea: Newton did not converge in {max_iter} iterations at {amp_turns:.0f} A-turns "
+                  f"(check the mesh for needle elements)", file=sys.stderr)
         ae = a[tri]
         gxa, gya = (ae * self.gx).sum(1), (ae * self.gy).sum(1)
         bx, by = gya, -gxa

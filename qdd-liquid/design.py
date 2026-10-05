@@ -97,7 +97,8 @@ class Design:
     slots: int = 24
     poles: int = 22
     kw: float = 0.95                  # winding factor, 24s/22p concentrated
-    slot_frac: float = 0.5            # slot width / slot pitch
+    slot_frac: float = 0.5            # slot width / slot pitch (wedge slots)
+    slot_w: float = 0.0               # mm; > 0 makes the slots parallel-sided, this wide
     b1_20c: float = 0.90              # air-gap fundamental, peak T, magnets at 20 C [ASSUMED]
     br_tempco: float = -0.0011        # 1/K, NdFeB
     sigma_sat_kpa: float = 90.0       # air-gap shear where teeth saturate [ASSUMED]
@@ -108,6 +109,14 @@ class Design:
     pack: float = 0.70                # conductor envelopes / slot area (liner, insulation, corners)
     bore_frac: float = 0.25           # bore area / conductor envelope
     end_turn_mm: float = 18.0         # one end, per turn
+    # A specific conductor instead of pack/bore_frac: insulated pitch across and along
+    # the slot, and its bore. Round = tube of diameter cond_w.
+    cond_w: float = 0.0               # mm, across the slot (0 = use pack and bore_frac)
+    cond_h: float = 0.0               # mm, along the slot depth
+    cond_bore: float = 0.0            # mm
+    cond_round: bool = False
+    insulation: float = 0.05          # mm per side
+    liner: float = 0.25               # mm, slot liner
     t_cu_max: float = 200.0           # hottest copper, C (class 220/240 insulation, margin)
 
     # ---- coolant loop ---------------------------------------------------------
@@ -150,24 +159,43 @@ class Design:
         """Diameter left empty at the centre (room for a gear stage)."""
         if self.outrunner:
             return 2 * (self.slot_radii[0] * 1e3 - self.stator_yoke)
-        return 2 * (self.r_gap * 1e3 - self.air_gap - self.magnet - self.rotor_yoke)
+        return 2 * (self.r_gap * 1e3 - self.magnet - self.rotor_yoke)
 
     @property
     def slot_area(self):
+        if self.slot_w:
+            return self.slot_w * self.slot_depth * 1e-6
         ri, ro = self.slot_radii
         return self.slot_frac * pi * (ro ** 2 - ri ** 2) / self.slots
 
     @property
     def envelope_area(self):
+        if self.cond_w:
+            return self.cond_w * self.cond_h * 1e-6
         return self.slot_area * self.pack / (2 * self.turns)
 
     @property
     def bore_d(self):
+        if self.cond_w:
+            return self.cond_bore * 1e-3
         return sqrt(4 * self.bore_frac * self.envelope_area / pi)
 
     @property
     def cu_area(self):
-        return self.envelope_area * (1 - self.bore_frac)
+        if not self.cond_w:
+            return self.envelope_area * (1 - self.bore_frac)
+        w, h = self.cond_w - 2 * self.insulation, self.cond_h - 2 * self.insulation
+        bore = pi * self.cond_bore ** 2 / 4
+        if self.cond_round:
+            return (pi * w * w / 4 - bore) * 1e-6
+        return (w * h - bore - 0.077) * 1e-6               # 0.3 mm corner radii
+
+    def coil_grid(self):
+        """(columns, rows) of this conductor that fit one coil side: half the slot
+        width less liner, the slot depth less liner. Needs slot_w and cond_w."""
+        cols = int((self.slot_w / 2 - self.liner - 0.05) // self.cond_w)
+        rows = int((self.slot_depth - 2 * self.liner) // self.cond_h)
+        return cols, rows
 
     @property
     def turn_len(self):
@@ -193,7 +221,7 @@ class Design:
         L = self.stack * 1e-3
         ri, ro = self.slot_radii
         cu = self.cu_area * self.coil_len * self.slots * 8960
-        teeth = (1 - self.slot_frac) * pi * (ro ** 2 - ri ** 2) * L * 7650
+        teeth = (pi * (ro ** 2 - ri ** 2) - self.slots * self.slot_area) * L * 7650
         if self.outrunner:
             yoke = pi * (ri ** 2 - (ri - self.stator_yoke * 1e-3) ** 2) * L * 7650
         else:
@@ -203,6 +231,15 @@ class Design:
         ryoke = 2 * pi * rg * self.rotor_yoke * 1e-3 * L * 7650
         shell = pi * self.od * 1e-3 * (L + 2 * self.end_turn_mm * 1e-3) * self.jacket * 1e-3 * 0.6 * 2700
         return 1.3 * (cu + teeth + yoke + mag + ryoke + shell)
+
+
+# The shallow-slot design (study.py: shallower slots let the rotor grow), with a
+# specific conductor: parallel-sided slots 5.8 x 10 mm, each coil one column of four
+# turns of hollow rectangular copper (2.5 x 2.3 mm pitch, Ø1.2 mm bore). The pitch across
+# the slot leaves 0.4 mm between the two coils sharing it: cad.py found 2.6 mm clashing
+# where the end bends leave the slot.
+SHALLOW = Design(slot_depth=10.0, slot_w=5.8, turns=4, cond_w=2.5, cond_h=2.3, cond_bore=1.2,
+                 end_turn_mm=15.0)
 
 
 # ---- hydraulics and heat transfer in one coil bore -------------------------------
