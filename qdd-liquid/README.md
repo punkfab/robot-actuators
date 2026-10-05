@@ -12,8 +12,11 @@ gear reduction.
 | `jacket.py` | the same motor with solid conductors and only the jacket (`make qdd-liquid-jacket`) |
 | `render.py` | Blender renders of that assembly (`make qdd-liquid-render`) |
 | `cad.py` | the shallow-slot design as an assembly: STEP, interference checks, cutaway (`make qdd-liquid-cad`) |
+| `paper/` | preprint: `main.tex`, `figures.py` (`make qdd-liquid-paper`, then `make qdd-liquid-paper-pdf`), `liquid-cooled-qdd-preprint-v1.pdf` |
 
 Nothing here has been built.
+
+Preprint: [doi:10.5281/zenodo.23155223](https://doi.org/10.5281/zenodo.23155223) (source in `paper/`).
 
 ## The concept
 

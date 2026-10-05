@@ -21,3 +21,10 @@ robstride/out/*.npz
 qdd-liquid/out/cad/*.stl
 qdd-liquid/out/shallow.txt
 qdd-liquid/out/render/*.glb
+
+# qdd-liquid paper build intermediates
+qdd-liquid/paper/main.aux
+qdd-liquid/paper/main.log
+qdd-liquid/paper/main.out
+qdd-liquid/paper/main.bbl
+qdd-liquid/paper/main.blg
