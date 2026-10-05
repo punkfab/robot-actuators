@@ -1,29 +1,34 @@
 # Zenodo deposit
 
-**Published 2026-10-05:** version DOI `10.5281/zenodo.23155223`, concept DOI
-`10.5281/zenodo.23155222` (resolves to the latest version), <https://zenodo.org/records/23155223>.
-The uploaded file is `liquid-cooled-qdd-preprint-v1.pdf` (md5 `48980eae84c4d31f1df8f3342cbfe449`).
-A correction means a new version on the same concept DOI. The fields used are below.
+**Concept DOI (always the latest version):** `10.5281/zenodo.23155222`
+
+| version | DOI | file | note |
+|---|---|---|---|
+| 2 | `10.5281/zenodo.23156072` | `liquid-cooled-qdd-preprint-v2.pdf` | current. Title shortened; process framing rewritten in conventional paper style (hypothesis, contributions, scope, "Design workflow" section); no change to results |
+| 1 | `10.5281/zenodo.23155223` | `liquid-cooled-qdd-preprint-v1.pdf` | superseded. Record title corrected, but the PDF keeps the original title |
+
+Both published 2026-10-05. A further correction means another version on the concept DOI.
+The fields used are below.
 
 Go to <https://zenodo.org/uploads/new> and upload one file:
 
-    qdd-liquid/paper/liquid-cooled-qdd-preprint-v1.pdf
+    qdd-liquid/paper/liquid-cooled-qdd-preprint-v2.pdf
 
 | Field | Value |
 |---|---|
 | **Resource type** | Publication → **Preprint** |
-| **Title** | Cooling a Quasi-Direct-Drive Joint Motor from Inside the Copper: A Simulation-Only Design Study, Produced from a Three-Sentence Brief |
+| **Title** | Cooling a Quasi-Direct-Drive Joint Motor from Inside the Copper: A Simulation-Only Design Study |
 | **Creator** | Newcome, Daniel · ORCID `0009-0000-6015-8713` · Affiliation: punkfab |
 | **Publication date** | the day you publish |
 | **License** | Creative Commons Attribution 4.0 International (CC-BY-4.0) |
-| **Version** | 1 |
+| **Version** | 2 |
 | **Language** | English |
 
 **Description** (paste as-is):
 
 > Quasi-direct-drive (QDD) robot joints trade gear ratio for transparency, and their continuous
-> torque is set by how much winding heat the housing can shed. This preprint examines one
-> proposition: that drive electronics are now efficient enough at high current that heat is the
+> torque is set by how much winding heat the housing can shed. This preprint tests one
+> hypothesis: that drive electronics are now efficient enough at high current that heat is the
 > remaining limit, so a joint motor should be cooled directly, run hard, and geared less. The design
 > studied is a Ø120 mm, 24-slot, 22-pole motor whose coils are hollow rectangular copper carrying
 > dielectric oil in the bore, inside an outer jacket fed with the coldest coolant. It is evaluated
@@ -39,9 +44,9 @@ Go to <https://zenodo.org/uploads/new> and upload one file:
 > matches a commercial 9:1 actuator's continuous torque with a ninth of the reflected inertia and
 > about five times the holding power.
 >
-> The paper also records how the study was produced: from a three-sentence brief to a paper through
-> seven prompts and about seventy minutes of AI-agent working time, with the errors the models and
-> checks caught in each other. No new cooling method is claimed.
+> The models and CAD were written by an AI coding agent under the author's direction; the paper
+> describes that workflow and the modelling errors that cross-checks between the models exposed.
+> No new cooling method is claimed.
 
 **Keywords:** quasi-direct-drive actuator; robot joint; direct liquid cooling; hollow conductor;
 permanent-magnet motor; finite element analysis; thermal management; legged robots;

@@ -29,7 +29,7 @@
 \newcommand{\Nm}{\si{N.m}}
 
 \title{\textbf{Cooling a Quasi-Direct-Drive Joint Motor from Inside the Copper:\\
-A Simulation-Only Design Study, Produced from a Three-Sentence Brief}}
+A Simulation-Only Design Study}}
 \author{Dan Newcome\\[2pt]
   \small punkfab\\
   \small\url{https://github.com/punkfab/robot-actuators}}
@@ -41,7 +41,7 @@ A Simulation-Only Design Study, Produced from a Three-Sentence Brief}}
 \begin{abstract}
 Quasi-direct-drive (QDD) robot joints trade gear ratio for transparency, and
 their continuous torque is set by how much winding heat the housing can shed.
-We examine one proposition: that drive electronics are now efficient enough at
+We test one hypothesis: that drive electronics are now efficient enough at
 high current that heat is the remaining limit, so a joint motor should be cooled
 directly, run hard, and geared less. The design studied is a
 \diameter\SI{120}{mm}, 24-slot, 22-pole motor whose coils are hollow rectangular
@@ -54,7 +54,7 @@ assembly with interference checks, all driven by one design record.
 \SI{16.6}{\Nm} continuously for \SI{850}{W} of heat with the copper at
 \SI{126}{\celsius}, and \SI{21.3}{\Nm} at the limit of a
 \SI{3}{L\per\minute} pump, against about \SI{5}{\Nm} for the same iron cooled
-by air. Three results were not what the brief expected. The saturation limit
+by air. Three results ran against the hypothesis. The saturation limit
 first assumed was too pessimistic, by a quarter to a third of the torque. Trading copper for iron at
 fixed size does not raise torque at a given heat: eleven geometry variants land
 within about \SI{10}{\percent} of each other. And a much simpler motor, with
@@ -62,11 +62,11 @@ solid conductors and only the jacket, reaches about \SI{70}{\percent} of the
 hollow design's torque, so it is the one to build first. A
 \num{3}:\num{1} reduction then matches a commercial \num{9}:\num{1} actuator's
 continuous torque with a ninth of the reflected inertia, and spends about five
-times the power holding the same load. We also record how the study was
-produced: from a three-sentence brief to this paper through seven prompts and
-about seventy minutes of agent working time, with a list of the errors the
-models and checks caught in each other. We claim no new cooling method; we
-offer the design, the open code, and an account of the process.
+times the power holding the same load. The models and CAD were written by an AI coding agent under the
+author's direction; we describe that workflow and the modelling errors that
+cross-checks between the models exposed. No new cooling method is claimed. The
+contributions are the design, its comparison with the jacket-only motor, and
+the open code.
 \end{abstract}
 
 % ============================================================================
@@ -82,31 +82,29 @@ the square of torque, and the continuous rating of such a joint is a thermal
 figure: what the winding can lose through the slot insulation, the iron, the
 housing and whatever the housing is bolted to.
 
-This study starts from a brief stated by the author in three sentences
-(Section~\ref{sec:process} quotes it): high-current solid-state drives have
-become efficient, so heat is now the limiting factor; cool the conductors
-directly with liquid, isolate the hot machine from its surroundings with an
-outer jacket, run it at high current and high temperature, and use less gear
-reduction. We took that as a thesis to test, not as a specification.
+This study tests a design hypothesis: high-current solid-state drives are now
+efficient enough that heat, not the drive, limits a joint motor, so the
+conductors should be cooled directly with liquid, the hot machine isolated
+from its surroundings by an outer jacket, the copper run at high current
+density and temperature, and the gear ratio reduced.
 
-The paper has two subjects.
+The contributions are:
 
 \begin{enumerate}
-\item \textbf{The design.} A hollow-conductor, oil-cooled motor in the envelope
-  of a commercial QDD actuator, taken as far as simulation and CAD can take
-  it, together with the simpler jacket-only motor it has to beat.
-\item \textbf{The process.} PUNKFAB's earlier case studies run from a
-  published paper to a verified assembly. This one runs the other way: from an
-  idea to a paper, with the same loop of defining the design in code,
-  simulating it, and checking the result. Section~\ref{sec:process} sets out
-  what the author supplied, what a coding agent did, how long it took, and
-  which mistakes were caught and by what.
+\item a hollow-conductor, oil-cooled motor design in the envelope of a
+  commercial QDD actuator, evaluated by loss, hydraulic and nonlinear field
+  models and drawn as a checked CAD assembly;
+\item a comparison, on the same iron, with a jacket-only motor using solid
+  conductors, and the consequences of both for gear ratio and holding power;
+\item the open models and solver, and a description of the agent-assisted
+  workflow that produced them, including the errors found by cross-checking
+  (Section~\ref{sec:process}).
 \end{enumerate}
 
-\paragraph{What is not claimed.} There is no hardware and no measurement in
-this paper. Cooling a winding by passing coolant through hollow conductors is
+\paragraph{Scope.} The study is simulation only: nothing has been built or
+measured. Cooling a winding by passing coolant through hollow conductors is
 decades old in large machines and has been demonstrated in small ones
-(Section~\ref{sec:related}); we claim nothing new about the method. Every
+(Section~\ref{sec:related}); no novelty is claimed for the method. Every
 thermal coefficient is a handbook value or a stated assumption, and
 Section~\ref{sec:limits} lists what the models leave out.
 
@@ -189,8 +187,7 @@ The motor (Figure~\ref{fig:render}) has these features.
   $\rightarrow$ conductor bores $\rightarrow$ radiator. The coldest fluid
   lines the outside of the machine before it reaches the heat source, in the
   way a regeneratively cooled rocket nozzle is lined by its
-  propellant~\cite{sutton2017}. The
-  brief's word was ``regenerative''; this ordering is our reading of it.
+  propellant~\cite{sutton2017}.
 \item \textbf{Stator outside,} pressed into the jacket, with the rotor inside
   and a \diameter\SI{64}{mm} free bore.
 \end{itemize}
@@ -353,7 +350,7 @@ sizing model had assumed.}
 In that geometry torque per amp is down \SI{20}{\percent} at \SI{39}{\Amm}
 (\SI{19.3}{\Nm}) and the \SI{3}{L\per\minute} pump is exhausted at
 \SI{49}{\Amm} (\SI{21.4}{\Nm}, about \SI{3}{kW}). Heat and saturation arrive
-at nearly the same current. The brief's premise that heat is \emph{the} limit
+at nearly the same current. The premise that heat is \emph{the} limit
 is therefore half right for this iron: remove the heat and the iron is next,
 immediately.
 
@@ -558,7 +555,7 @@ coolant see is current density. Fewer turns raise the phase current and the
 drive loss without adding torque: at the same torque in the first geometry,
 2 turns per coil means about \SI{280}{A} and \SI{195}{W} in the switches and
 leads, and 8 turns means \SI{70}{A} and \SI{17}{W}. More turns shrink the
-bore, which costs pump pressure. The brief's ``super high current'' is thus a
+bore, which costs pump pressure. A very high phase current is thus a
 consequence to be minimised, not a goal.
 
 \emph{Running the loop hot costs torque and saves radiator.} Copper resistance
@@ -568,49 +565,35 @@ coolant return from \SI{60}{\celsius} to \SI{100}{\celsius} adds about
 the return is a radiator a little over half the size.
 
 % ============================================================================
-\section{From a brief to a paper: the process in reverse}
+\section{Design workflow}
 \label{sec:process}
 
-PUNKFAB's published case studies start from someone else's paper and end at an
-assembly that passes its checks.\footnote{For example
-\url{https://punkfab.com/blog/vtap-from-paper/}.} This study started from the author's idea and
-ends at a paper. The loop in between is the same: define the design in code,
-simulate it, verify the result against an independent model or a geometric
-check, and change the design when they disagree.
+The study was carried out as a loop: define the design in code, simulate it,
+check the result against an independent model or a geometric test, and change
+the design when they disagree. Earlier case studies by the author applied this
+loop to reproduce published designs as verified
+assemblies.\footnote{For example
+\url{https://punkfab.com/blog/vtap-from-paper/}.} Here it is applied in the
+other direction, from a hypothesis to a design study.
 
-\paragraph{What the author supplied.} The brief, verbatim apart from spelling:
-\begin{quote}\small
-``I was thinking about designing a QDD actuator that is high current and
-operates at a high temperature with large high-current conductors that are
-liquid cooled and have an outer sort of water jacket to isolate from ambient.
-Thesis is that super high current solid state drives are getting very good and
-efficient, and the limiting factor now is heat, we want to do less gear
-reduction and more direct torque and deal with heat actively with regenerative
-cooling. Let's design an actuator that can do this, rotary first, then we can
-talk about other actuator types using this method.''
-\end{quote}
-Six further prompts followed, each one or two sentences
-(Table~\ref{tab:prompts}). The author chose the direction at each step and
-asked the question that produced the most useful result, the jacket-only
-comparison. The author did not write the models, the solver, the CAD or
-the first draft of this text.
-
-\paragraph{What the agent did.} A coding agent (Claude, Anthropic, run in
-Claude Code with shell access to the repository) chose the envelope and
-topology, wrote the four models and the CAD script, ran them, found and fixed
-the errors listed below, and drafted the documentation, a blog post, the
-renders and this paper. Reference details in this paper were checked against
-bibliographic records by a second agent instance, whose notes are in the
-repository.
+\paragraph{Roles.} The author stated the hypothesis of
+Section~\ref{sec:intro}, chose the direction at each step
+(Table~\ref{tab:prompts}) and posed the jacket-only comparison. An AI coding
+agent (Claude, Anthropic, run in Claude Code with shell access to the
+repository) chose the envelope and topology, wrote the four models and the CAD
+script, ran them, found and corrected the errors listed below, and drafted the
+documentation and this paper. Bibliographic details were checked against
+Crossref records, and cited claims against the sources' abstracts; the notes
+are in the repository.
 
 \begin{table}[h]
 \centering
 \small
 \begin{tabular}{rp{0.42\linewidth}p{0.42\linewidth}}
 \toprule
- & prompt (paraphrased) & produced\\
+ & direction given by the author & produced\\
 \midrule
-1 & the brief above & concept, sizing model, first findings\\
+1 & the hypothesis & concept, sizing model, first findings\\
 2 & run the solver; is the trade size, for more iron? & nonlinear field solver, eleven-variant study\\
 3 & push, then do the shallow slot & shallow-slot design, conductor layouts, CAD assembly and checks\\
 4 & what if the conductors were solid, with only a jacket? & jacket-only thermal model and comparison\\
@@ -619,22 +602,22 @@ repository.
 7 & make some renders & cutaway and stator renders\\
 \bottomrule
 \end{tabular}
-\caption{The prompts between the brief and the design as reported. An eighth
-asked for this paper.}
+\caption{Steps of the study: the direction given at each step and what it
+produced.}
 \label{tab:prompts}
 \end{table}
 
-\paragraph{How long it took.} By the session log, with gaps longer than
+\paragraph{Elapsed time.} By the session log, with gaps longer than
 fifteen minutes excluded, the work in Table~\ref{tab:prompts} took about
 \SI{70}{minutes} of agent working time in two sittings on one day
-(\SI{56}{minutes} for prompts 1--3, \SI{13}{minutes} for prompts 4--7). This
+(\SI{56}{minutes} for steps 1--3, \SI{13}{minutes} for steps 4--7). This
 paper, its figures and the two solver checks in Section~\ref{sec:fea} were
 additional. The figure measures elapsed session time, not effort that would
-compare with a person's hours, and it does not include the author's thinking
-before the brief.
+compare with a person's hours, and it excludes the author's prior work on
+the hypothesis.
 
-\paragraph{What was caught, and by what.} The useful property of the loop is
-that the models check each other. In order:
+\paragraph{Errors found by cross-checking.} The models check each other. In
+the order found:
 \begin{enumerate}
 \item \emph{A nonsensical rating.} The first sizing run reported a thermal
   limit at which the motor dissipated \SI{37}{kW} for no added torque, because
@@ -658,20 +641,18 @@ that the models check each other. In order:
 \item \emph{An optimistic topology estimate.} The first-order model put an
   outrunner at 1.5 times the torque; the field solution says \SI{11}{\percent}.
 \end{enumerate}
-Items 2, 4 and 6 changed conclusions. Item 4 is the one to dwell on: a solver
-written in under an hour returned plausible, wrong numbers, and nothing but a
-physical-plausibility check on its output stood between those numbers and a
-published table.
+Items 2, 4 and 6 changed conclusions. Item 4 is the most serious: a newly
+written solver returned plausible but wrong values, and only a
+physical-plausibility check on its output detected them.
 
-\paragraph{What the process cannot do.} Every check above is one model against
+\paragraph{Limits of the workflow.} Every check above is one model against
 another, or a model against geometry. None is a measurement. The loop can show
 that the design is self-consistent and that a conductor fits a slot; it cannot
 show that a hollow conductor survives its end bend, that a press fit reaches
 \SI{2000}{W\per\metre\squared\per\kelvin}, or that the two-dimensional torque
-survives a \SI{25}{mm} stack. Going from a paper to an assembly ends at
-something that can be checked against the paper. Going from an idea to a paper
-ends at a set of claims that only hardware can check, and the paper has to say
-so.
+survives a \SI{25}{mm} stack. Reproducing a published design ends at
+something that can be compared with the publication; a study that starts from
+a hypothesis ends at claims that only hardware can test.
 
 % ============================================================================
 \section{Limitations}
@@ -708,7 +689,7 @@ so.
 % ============================================================================
 \section{Conclusion}
 
-Within the limits of simulation, the brief's thesis mostly holds. Cooling the
+Within the limits of simulation, the hypothesis mostly holds. Cooling the
 copper from inside lifts the continuous torque of a
 \diameter\SI{120}{mm} joint motor from about \SI{5}{\Nm} to between
 \SI{17}{\Nm} and \SI{21}{\Nm} and lets the gear ratio fall from
@@ -721,8 +702,8 @@ single-column coil cooled only through the tooth reaches about
 \SI{70}{\percent} of the torque with none of the manufacturing risk, so that
 is the motor to build first.
 
-The brief ended by asking for other actuator types cooled the same way. The
-jacket-only result suggests the question to carry forward is less ``can
+A natural extension is to other actuator types. The jacket-only result
+suggests that the question to carry forward is less ``can
 coolant reach the copper'' than ``how short can the path from every conductor
 to a cooled wall be made'', which applies equally to linear and axial-flux
 machines.
@@ -735,7 +716,7 @@ paper are at \url{https://github.com/punkfab/robot-actuators} under
 \code{qdd-liquid-jacket}, \code{qdd-liquid-cad} and \code{qdd-liquid-paper}
 regenerate the tables and figures. A shorter account is at
 \url{https://punkfab.com/blog/liquid-cooled-qdd/}. This preprint is archived at
-\url{https://doi.org/10.5281/zenodo.23155223}.
+\url{https://doi.org/10.5281/zenodo.23155222}.
 
 \section*{Use of AI}
 
