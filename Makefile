@@ -63,6 +63,9 @@ help:
 	@echo "  make qdd-liquid-femm        cross-check of the field solver against FEMM 4.2 (needs wine + FEMM)"
 	@echo "  make qdd-liquid-thermal     jacket-only motor: thermal field solution in FEMM against the lumped model"
 	@echo "  make qdd-liquid-paper       figures and numbers for the paper (qdd-liquid/paper); -paper-pdf builds the PDF"
+	@echo "  make rollerscrew            roller-screw linear actuator (8 kN knee class): sizing against a day's duty"
+	@echo "  make rollerscrew-cad       its CAD assembly: STEP, STLs, interference checks"
+	@echo "  make rollerscrew-render    Blender renders: half-section and the roller screw alone"
 	@echo "  make muscle                 matrix muscle: SMA cell, bundle, crosstalk sheet"
 	@echo "  make muscle-sm              slow-manifold feed-forward (Bettini 2026) on the SMA cell"
 	@echo "  make muscle-hasel           HASEL pouch cell (Kellaris model), sized beside the SMA unit"
@@ -333,3 +336,16 @@ TECTONIC ?= tectonic
 qdd-liquid-paper-pdf:
 	cd qdd-liquid/paper && $(TECTONIC) main.tex
 	@echo "wrote qdd-liquid/paper/main.pdf"
+
+# --- roller-screw linear actuator (Optimus-style) ----------------------------
+.PHONY: rollerscrew
+rollerscrew:
+	$(PY) rollerscrew/design.py
+
+.PHONY: rollerscrew-cad
+rollerscrew-cad: rollerscrew
+	$(PY) rollerscrew/cad.py
+
+.PHONY: rollerscrew-render
+rollerscrew-render: rollerscrew-cad
+	$(PY) rollerscrew/render.py
