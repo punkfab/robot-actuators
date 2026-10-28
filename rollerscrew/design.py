@@ -464,6 +464,9 @@ class Actuator:
         od = self.motor.od
         body = z["front"] - z["cap_rear"]
         housing = RHO_AL * (pi * od * 2.0 * body + 2 * pi / 4 * od * od * CAP) * 1e-9
+        b_out = self.screw.nut_od / 2 + 2 + B_SECTION                  # bearing OD radius (hub + section)
+        webs = RHO_AL * pi * (self.motor.r_so ** 2 - b_out ** 2) * 3 * B_W * 1e-9    # bearing seats, found by cad.py's mass check
+        housing += webs
         tail = RHO_AL * pi * (self.screw.d_s + 4) * 1.5 * z["tail_len"] * 1e-9
         bo = self.screw.nut_od + 4
         bearings = 3 * RHO_STEEL * pi / 4 * ((bo + 2 * B_SECTION) ** 2 - bo ** 2) * 1e-6 * B_W * 1e-3 * 0.6

@@ -28,11 +28,11 @@ races and balls with no cage; no fasteners, leads or seals beyond the wiper bore
 """
 
 import sys
-from math import cos, degrees, floor, sin, tau
+from math import cos, degrees, floor, radians, sin, tau
 from pathlib import Path
 
 from build123d import (Align, Axis, Box, BuildLine, BuildPart, BuildSketch, Compound, Cylinder, Plane,
-                       Polyline, Pos, Rot, Sphere, export_step, export_stl, extrude, make_face, revolve)
+                       Line, Polyline, Pos, Rot, ThreePointArc, export_step, export_stl, extrude, make_face, revolve)
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -134,7 +134,7 @@ def screw():
 
 
 def rod_eye():
-    w, h = 10.0, dz.EYE + 8.0
+    w, h = 10.0, dz.EYE                     # block ends at the pin; the eye's round end carries on past it
     eye = Pos(0, 0, ROD_END) * Box(w, S.d_s + 4, h, align=(Align.CENTER, Align.CENTER, Align.MIN))
     eye += Pos(0, 0, PIN_MIN) * Rot(0, 90, 0) * Cylinder((S.d_s + 4) / 2, w)
     return eye - Pos(0, 0, PIN_MIN) * Rot(0, 90, 0) * Cylinder(3.0, w + 2)
@@ -260,6 +260,22 @@ def coils():
 
 
 # ---- bearings, housing, ends -------------------------------------------------------------
+def ball(r):
+    """a ball with small flats at the poles: OCC's Sphere tessellates into three loose
+    shells (not watertight); flats at +-80 deg latitude export as one closed body"""
+    zf, xf = r * sin(radians(80)), r * cos(radians(80))
+    with BuildPart() as p:
+        with BuildSketch(Plane.XZ):
+            with BuildLine():
+                Line((0, -zf), (xf, -zf))
+                ThreePointArc((xf, -zf), (r, 0), (xf, zf))
+                Line((xf, zf), (0, zf))
+                Line((0, zf), (0, -zf))
+            make_face()
+        revolve(axis=Axis.Z)
+    return p.part
+
+
 def bearing(z0):
     sec = dz.B_SECTION
     inner = ring(B_IN, B_IN + sec * 0.3, z0, dz.B_W)
@@ -267,7 +283,7 @@ def bearing(z0):
     rb = (B_IN + B_OUT) / 2
     d_ball = sec * 0.42
     n = floor(tau * rb / (d_ball * 1.25))
-    balls = [Pos(rb * cos(i * tau / n), rb * sin(i * tau / n), z0 + dz.B_W / 2) * Sphere(d_ball / 2) for i in range(n)]
+    balls = [Pos(rb * cos(i * tau / n), rb * sin(i * tau / n), z0 + dz.B_W / 2) * ball(d_ball / 2) for i in range(n)]
     return [inner, outer] + balls
 
 
@@ -376,6 +392,62 @@ def interference(parts):
     return worst
 
 
+# densities (kg/m3) for the mass cross-check, and which sizing-budget line each part belongs to
+DENSITY = dict(screw=dz.RHO_STEEL, roller=dz.RHO_STEEL, ring_gear=dz.RHO_STEEL,
+               carrier=dz.RHO_STEEL, nut=dz.RHO_STEEL, rotor=dz.RHO_STEEL, magnet=dz.RHO_MAG,
+               stator_core=dz.RHO_FE, coil=dz.RHO_CU, bearing_front=dz.RHO_STEEL, bearing_rear=dz.RHO_STEEL,
+               housing=dz.RHO_AL, cap_front=dz.RHO_AL, cap_rear=dz.RHO_AL, tail_tube=dz.RHO_AL)
+BUDGET = dict(screw="screw", roller="rollers", ring_gear="nut", carrier="nut", nut="nut",
+              rotor=("rotor_yoke", "rotor_hub"), magnet="magnets", stator_core="stator", coil="copper",
+              bearing_front="bearings", bearing_rear="bearings", housing="housing", cap_front="housing",
+              cap_rear="housing", tail_tube="housing")
+
+
+def check_parts(parts):
+    """build123d-part gate on every solid: export, reload with trimesh, watertight and one
+    body; every part inside the actuator's envelope; CAD mass against the sizing budget."""
+    import tempfile
+
+    import trimesh
+    env_r = R_HOUSING + 0.01
+    z_lo, z_hi = -8.0 - 0.01, PIN_MIN + (S.d_s + 4) / 2 + 0.01
+    bad, cad_mass = [], {}
+    print("\npart checks (each solid: watertight, one body; part inside the envelope):")
+    with tempfile.TemporaryDirectory() as tmp:
+        for name, solids in parts.items():
+            n_ok, vol = 0, 0.0
+            for k, sol in enumerate(solids):
+                f = f"{tmp}/{name}_{k}.stl"
+                export_stl(sol, f, tolerance=0.01, angular_tolerance=0.2)
+                m = trimesh.load(f)
+                bodies = len(m.split(only_watertight=False))
+                if m.is_watertight and bodies == 1 and m.volume > 0:
+                    n_ok += 1
+                else:
+                    bad.append(f"{name}[{k}]: watertight={m.is_watertight} bodies={bodies} volume={m.volume:.3f}")
+                vol += sol.volume
+            bb = Compound(children=solids).bounding_box()
+            inside = (max(abs(bb.min.X), abs(bb.max.X), abs(bb.min.Y), abs(bb.max.Y)) <= env_r
+                      and bb.min.Z >= z_lo and bb.max.Z <= z_hi)
+            if not inside:
+                bad.append(f"{name}: outside the envelope, bbox {bb.min} .. {bb.max}")
+            if name in DENSITY:
+                cad_mass[name] = vol * 1e-9 * DENSITY[name]
+            print(f"  {name:15} {n_ok:3d}/{len(solids):<3} ok  bbox {bb.size.X:5.1f} x {bb.size.Y:5.1f} x {bb.size.Z:5.1f} mm"
+                  f"{'' if inside else '  OUTSIDE'}")
+    _, budget = A.mass()
+    print("\nmass, CAD solids at material density against the sizing budget (g):")
+    for line in sorted({v if isinstance(v, str) else "+".join(v) for v in BUDGET.values()}):
+        keys = line.split("+")
+        sized = sum(budget[k] for k in keys) * 1e3
+        cad = sum(m for n, m in cad_mass.items() if (BUDGET[n] if isinstance(BUDGET[n], str) else "+".join(BUDGET[n])) == line) * 1e3
+        print(f"  {line:22} CAD {cad:6.0f}   sizing {sized:6.0f}   {cad / sized - 1:+5.0%}")
+    if bad:
+        print("\nFAILED:\n  " + "\n  ".join(bad))
+        raise SystemExit(1)
+    print("all solids watertight, one body each, inside the envelope")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     print(f"screw Ø{S.d_s} x {S.lead} lead, {S.starts} starts, pitch {P}; {S.n_rollers} rollers Ø{S.d_r:.2f}; "
@@ -388,6 +460,7 @@ def main():
         print(f"  {name:15} x{len(solids):<3} z {bb.min.Z:7.1f} .. {bb.max.Z:7.1f}  r <= {max(abs(bb.max.X), abs(bb.min.X), abs(bb.max.Y)):5.1f}")
     export_step(Compound(children=[s for v in parts.values() for s in v]), str(OUT / "assembly.step"))
     interference(parts)
+    check_parts(parts)
     print(f"wrote {OUT}/*.stl and assembly.step; renders: make rollerscrew-render")
 
 
