@@ -1,0 +1,101 @@
+{
+ "analysis": {
+  "ratio": 81.0,
+  "k1": 0.6666666666666666,
+  "profile_ok": true,
+  "tightest_radius": 2.763112198416133,
+  "t_nominal": 24.299999999999997,
+  "limits": {
+   "pin on printed lobe (contact)": 10.878648721902566,
+   "sun tooth root (bending)": 32.14889999999999,
+   "crankshaft hex key (bearing)": 499.99999999999994
+  },
+  "governing": "pin on printed lobe (contact)",
+  "bearing_force_eq": 271.2067881689087,
+  "lives_h": {
+   "eccentric, 2 x 6802-2RS": 764093.7064435531,
+   "journal, 6800-2RS": 81210.7175969311
+  },
+  "lobe_p0_nominal": 59.78271734679618,
+  "crank_rpm": 60.0
+ },
+ "bom": {
+  "bought": {
+   "6802-2RS ball bearing 15x24x5": 12,
+   "6800-2RS ball bearing 10x19x5": 6,
+   "6814-2RS ball bearing 70x90x10": 2,
+   "DIN 6325 hardened dowel pin 5x24 (pin ring)": 30,
+   "DIN 6325 hardened dowel pin 5x45 (pillars)": 3,
+   "DIN 6325 hardened dowel pin 5x45 (crankshaft cores)": 3,
+   "NEMA 17 stepper, 5 mm D shaft": 1,
+   "M3 x 8 screws (motor)": 4
+  },
+  "printed": {
+   "housing": 1,
+   "disc (print 2; flip one over at assembly)": 2,
+   "carrier_rear": 1,
+   "carrier_front": 1,
+   "crank_a (planet + rear journal)": 3,
+   "crank_b (eccentrics + front journal)": 3,
+   "sun": 1,
+   "input_cover": 1
+  }
+ },
+ "ring_options": [
+  {
+   "name": "printed teeth, part of the housing",
+   "contact": "printed",
+   "how": "lobe slides on printed plastic",
+   "mu": 0.2,
+   "eta_cyclo": 0.7373000000000001,
+   "eta": 0.6930620000000001,
+   "eta_back": 0.5571276451457448,
+   "t_out": 22.4552088
+  },
+  {
+   "name": "steel dowels, fixed, dry",
+   "contact": "steel_dry",
+   "how": "lobe slides on steel",
+   "mu": 0.12,
+   "eta_cyclo": 0.8173,
+   "eta": 0.768262,
+   "eta_back": 0.6983607154850819,
+   "t_out": 24.891688799999997
+  },
+  {
+   "name": "steel dowels, fixed, greased",
+   "contact": "steel_lubed",
+   "how": "lobe slides on greased steel",
+   "mu": 0.09,
+   "eta_cyclo": 0.8472999999999999,
+   "eta": 0.7964619999999999,
+   "eta_back": 0.7444473182650269,
+   "t_out": 25.805368799999997
+  },
+  {
+   "name": "steel dowels, floating in their grooves",
+   "contact": "sleeve",
+   "how": "pin rolls on the lobe, slides in its groove",
+   "mu": 0.03,
+   "eta_cyclo": 0.9073,
+   "eta": 0.8528619999999999,
+   "eta_back": 0.8274773644505207,
+   "t_out": 27.632728799999995
+  },
+  {
+   "name": "needle-bearing rollers on posts",
+   "contact": "needle",
+   "how": "rolling throughout",
+   "mu": 0.006,
+   "eta_cyclo": 0.9313,
+   "eta": 0.8754219999999999,
+   "eta_back": 0.857693775116458,
+   "t_out": 28.363672799999996
+  }
+ ],
+ "contact": {
+  "e_star_steel_pin": 2428.587949577888,
+  "e_star_printed_tooth": 1227.2089761570828,
+  "pressure_ratio": 0.7108571625603469
+ }
+}

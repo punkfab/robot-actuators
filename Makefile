@@ -66,6 +66,18 @@ help:
 	@echo "  make rollerscrew            roller-screw linear actuator (8 kN knee class): sizing against a day's duty"
 	@echo "  make rollerscrew-cad       its CAD assembly: STEP, STLs, interference checks"
 	@echo "  make rollerscrew-render    Blender renders: half-section and the roller screw alone"
+	@echo "  make rollerscrew-sim       MuJoCo leg with the actuator in its knee: interactive viewer (sliders)"
+	@echo "  make rollerscrew-sim-demo  statics check, landing A/B across leads, loaded squat -> out/sim.png, landing.gif"
+	@echo "  make rollerscrew-sim-selftest  build + settle + one landing, no window"
+	@echo "  make rv-rcf                 RV crankshaft rolling-contact fatigue (Li et al. 2022) against the paper"
+	@echo "  make rv                     RV reducer actuator: kinematics, loads, crank life, motor"
+	@echo "  make rv-cad                 RV actuator CAD: STEP, interference and part checks (~9 min)"
+	@echo "  make rv-render              Blender half-section through a crankshaft"
+	@echo "  make rv-sim                 MuJoCo kinematic playback of the RV actuator (interactive)"
+	@echo "  make rv-printed             3D-printable RV: ball bearings + steel dowels, load ranking, CAD, BOM"
+	@echo "  make rv-explode             exploded drawing of the printable RV with balloons and a parts list"
+	@echo "  make rv-assemble-video      Blender animation: parts fly together, then the reducer runs (~45 min; --quick)"
+	@echo "  make rv-sim-video           meshing check + render out/rv_sim.mp4 / .gif"
 	@echo "  make muscle                 matrix muscle: SMA cell, bundle, crosstalk sheet"
 	@echo "  make muscle-sm              slow-manifold feed-forward (Bettini 2026) on the SMA cell"
 	@echo "  make muscle-hasel           HASEL pouch cell (Kellaris model), sized beside the SMA unit"
@@ -349,3 +361,52 @@ rollerscrew-cad: rollerscrew
 .PHONY: rollerscrew-render
 rollerscrew-render: rollerscrew-cad
 	$(PY) rollerscrew/render.py
+
+.PHONY: rollerscrew-sim
+rollerscrew-sim:
+	$(PY) rollerscrew/sim.py
+
+.PHONY: rollerscrew-sim-demo
+rollerscrew-sim-demo:
+	$(PY) rollerscrew/sim.py --demo
+
+.PHONY: rollerscrew-sim-selftest
+rollerscrew-sim-selftest:
+	$(PY) rollerscrew/sim.py --selftest
+
+# --- RV reducer actuator (after Li et al. 2022) -------------------------------
+.PHONY: rv-rcf
+rv-rcf:
+	$(PY) rv/rcf.py
+
+.PHONY: rv
+rv:
+	$(PY) rv/design.py
+
+.PHONY: rv-cad
+rv-cad: rv
+	$(PY) rv/cad.py
+
+.PHONY: rv-render
+rv-render: rv-cad
+	$(PY) rv/render.py
+
+.PHONY: rv-sim
+rv-sim:
+	$(PY) rv/sim.py
+
+.PHONY: rv-sim-video
+rv-sim-video:
+	$(PY) rv/sim.py --video
+
+.PHONY: rv-printed
+rv-printed:
+	$(PY) rv/printed.py
+
+.PHONY: rv-explode
+rv-explode:
+	$(PY) rv/explode.py
+
+.PHONY: rv-assemble-video
+rv-assemble-video:
+	$(PY) rv/assemble_anim.py
