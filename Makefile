@@ -78,6 +78,7 @@ help:
 	@echo "  make rv-explode             exploded drawing of the printable RV with balloons and a parts list"
 	@echo "  make rv-assemble-video      Blender animation: parts fly together, then the reducer runs (~45 min; --quick)"
 	@echo "  make rv-sim-video           meshing check + render out/rv_sim.mp4 / .gif"
+	@echo "  make rv-web                 meshes + kinematics for the interactive assembly page rv/web/index.html"
 	@echo "  make muscle                 matrix muscle: SMA cell, bundle, crosstalk sheet"
 	@echo "  make muscle-sm              slow-manifold feed-forward (Bettini 2026) on the SMA cell"
 	@echo "  make muscle-hasel           HASEL pouch cell (Kellaris model), sized beside the SMA unit"
@@ -406,6 +407,10 @@ rv-printed:
 .PHONY: rv-explode
 rv-explode:
 	$(PY) rv/explode.py
+
+.PHONY: rv-web
+rv-web:
+	$(PY) rv/web_export.py
 
 .PHONY: rv-assemble-video
 rv-assemble-video:

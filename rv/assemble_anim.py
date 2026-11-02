@@ -28,6 +28,13 @@ BLENDER = os.environ.get("BLENDER", "/opt/blender-5.0.1-linux-x64/blender")
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 
 
+GROUP_NAMES = ["NEMA 17 motor", "input cover", "sun gear", "crankshafts, piece A (planets)", "rear main bearing",
+               "rear journal bearings", "rear carrier plate", "eccentric bearings", "cycloid disc 1",
+               "eccentric bearings", "cycloid disc 2 (flipped)", "crankshafts, piece B (eccentrics)",
+               "steel crankshaft cores", "steel carrier pillars", "30 steel ring pins", "housing",
+               "front journal bearings", "front main bearing", "output carrier plate"]
+
+
 def objects():
     """every part as its own object: name, explode group, kinematic role, crank index, fade"""
     import printed
@@ -135,11 +142,7 @@ def main():
                 ratio=P.ratio, t0=t0, stagger=stagger, move=move, act2=act2, run=run, fps=fps, crank_revs=crank_revs,
                 n_groups=len(order), quick=quick, res=(960, 540) if quick else (1920, 1080), samples=12 if quick else 48,
                 font=22 if quick else 40,
-                names=["NEMA 17 motor", "input cover", "sun gear", "crankshafts, piece A (planets)", "rear main bearing",
-                       "rear journal bearings", "rear carrier plate", "eccentric bearings", "cycloid disc 1",
-                       "eccentric bearings", "cycloid disc 2 (flipped)", "crankshafts, piece B (eccentrics)",
-                       "steel crankshaft cores", "steel carrier pillars", "30 steel ring pins", "housing",
-                       "front journal bearings", "front main bearing", "output carrier plate"])
+                names=GROUP_NAMES)
     # running state for the captions
     w_c = crank_revs * 2 * np.pi / run
     state = []

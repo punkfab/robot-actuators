@@ -21,6 +21,7 @@ Nothing here has been built.
 | `printed.py` | a 3D-printable version: printed parts, standard ball bearings and steel dowel pins only (`make rv-printed`) |
 | `assemble_anim.py`, `assemble_blender.py` | assembly-and-run animation of the printable version (`make rv-assemble-video`) |
 | `explode.py`, `explode_blender.py` | exploded drawing of the printable version with numbered balloons and a parts list (`make rv-explode`) |
+| `web_export.py`, `web/index.html` | interactive 3D assembly page: a slider fits the parts one step at a time and the reducer can be run at any point (`make rv-web`, then `python -m http.server -d rv/web`) |
 | `sim.py` | MuJoCo kinematic playback with a disc-to-pin meshing check (`make rv-sim`, `make rv-sim-video`) |
 
 ![half-section](out/render/section.png)

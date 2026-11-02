@@ -1,0 +1,657 @@
+{
+ "ratio": 81.0,
+ "e": 1.0,
+ "r_crank": 22.0,
+ "crank0": 90.0,
+ "n_crank": 3,
+ "z_sun": 12,
+ "z_planet": 32,
+ "pins": 30,
+ "lobes": 29,
+ "groups": [
+  {
+   "key": "motor",
+   "name": "NEMA 17 motor",
+   "dz": 0.0,
+   "text": "NEMA 17 stepper, 5 mm D shaft",
+   "qty": 1,
+   "kind": "bought"
+  },
+  {
+   "key": "input_cover",
+   "name": "input cover",
+   "dz": 43.0,
+   "text": "input cover / motor mount",
+   "qty": 1,
+   "kind": "printed"
+  },
+  {
+   "key": "sun",
+   "name": "sun gear",
+   "dz": 79.0000001,
+   "text": "sun gear, 12 teeth m1, on the motor shaft",
+   "qty": 1,
+   "kind": "printed"
+  },
+  {
+   "key": "crank_a",
+   "name": "crankshafts, piece A (planets)",
+   "dz": 112.00000029999998,
+   "text": "crankshaft piece A: planet (32 t) + rear journal + hex",
+   "qty": 3,
+   "kind": "printed"
+  },
+  {
+   "key": "main_rear",
+   "name": "rear main bearing",
+   "dz": 157.2000003,
+   "text": "main bearing 6814-2RS, 70x90x10",
+   "qty": 1,
+   "kind": "bought"
+  },
+  {
+   "key": "journal_rear",
+   "name": "rear journal bearings",
+   "dz": 190.9500003,
+   "text": "journal bearing 6800-2RS, 10x19x5",
+   "qty": 3,
+   "kind": "bought"
+  },
+  {
+   "key": "carrier_rear",
+   "name": "rear carrier plate",
+   "dz": 224.7000003,
+   "text": "carrier plate, rear",
+   "qty": 1,
+   "kind": "printed"
+  },
+  {
+   "key": "ecc1",
+   "name": "eccentric bearings",
+   "dz": 249.2000003,
+   "text": "eccentric bearings 6802-2RS, 15x24x5 (2 per crank)",
+   "qty": 6,
+   "kind": "bought"
+  },
+  {
+   "key": "disc1",
+   "name": "cycloid disc 1",
+   "dz": 285.2000004,
+   "text": "cycloid disc (29 lobes)",
+   "qty": 1,
+   "kind": "printed"
+  },
+  {
+   "key": "ecc2",
+   "name": "eccentric bearings",
+   "dz": 310.20000050000004,
+   "text": "eccentric bearings 6802-2RS, 15x24x5 (2 per crank)",
+   "qty": 6,
+   "kind": "bought"
+  },
+  {
+   "key": "disc2",
+   "name": "cycloid disc 2 (flipped)",
+   "dz": 346.20000060000007,
+   "text": "cycloid disc, the same part flipped over",
+   "qty": 1,
+   "kind": "printed"
+  },
+  {
+   "key": "crank_b",
+   "name": "crankshafts, piece B (eccentrics)",
+   "dz": 394.7000007000001,
+   "text": "crankshaft piece B: both eccentrics + front journal",
+   "qty": 3,
+   "kind": "printed"
+  },
+  {
+   "key": "crank_core",
+   "name": "steel crankshaft cores",
+   "dz": 472.7000007000001,
+   "text": "crankshaft core, DIN 6325 dowel 5x45",
+   "qty": 3,
+   "kind": "bought"
+  },
+  {
+   "key": "pillar",
+   "name": "steel carrier pillars",
+   "dz": 536.7000007000001,
+   "text": "carrier pillar, DIN 6325 dowel 5x45",
+   "qty": 3,
+   "kind": "bought"
+  },
+  {
+   "key": "pin",
+   "name": "30 steel ring pins",
+   "dz": 597.2000007000001,
+   "text": "ring pin, DIN 6325 dowel 5x24",
+   "qty": 30,
+   "kind": "bought"
+  },
+  {
+   "key": "housing",
+   "name": "housing",
+   "dz": 657.7000007000001,
+   "text": "housing / pin case",
+   "qty": 1,
+   "kind": "printed"
+  },
+  {
+   "key": "journal_front",
+   "name": "front journal bearings",
+   "dz": 693.4500007000001,
+   "text": "journal bearing 6800-2RS, 10x19x5",
+   "qty": 3,
+   "kind": "bought"
+  },
+  {
+   "key": "main_front",
+   "name": "front main bearing",
+   "dz": 727.2000007000001,
+   "text": "main bearing 6814-2RS, 70x90x10",
+   "qty": 1,
+   "kind": "bought"
+  },
+  {
+   "key": "carrier_front",
+   "name": "output carrier plate",
+   "dz": 763.2000007000001,
+   "text": "carrier plate, front (output flange)",
+   "qty": 1,
+   "kind": "printed"
+  }
+ ],
+ "objects": [
+  {
+   "name": "motor",
+   "group": 0,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "input_cover",
+   "group": 1,
+   "role": "fixed",
+   "k": 0,
+   "fade": true
+  },
+  {
+   "name": "sun",
+   "group": 2,
+   "role": "input",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "crank_a_0",
+   "group": 3,
+   "role": "crank",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "journal_rear_0",
+   "group": 5,
+   "role": "carrier",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "journal_front_0",
+   "group": 16,
+   "role": "carrier",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "crank_b_0",
+   "group": 11,
+   "role": "crank",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "crank_core_0",
+   "group": 12,
+   "role": "crank",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pillar_0",
+   "group": 13,
+   "role": "carrier",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "ecc1_0_0",
+   "group": 7,
+   "role": "disc1",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "ecc2_0_0",
+   "group": 9,
+   "role": "disc2",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "ecc1_0_1",
+   "group": 7,
+   "role": "disc1",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "ecc2_0_1",
+   "group": 9,
+   "role": "disc2",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "crank_a_1",
+   "group": 3,
+   "role": "crank",
+   "k": 1,
+   "fade": false
+  },
+  {
+   "name": "journal_rear_1",
+   "group": 5,
+   "role": "carrier",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "journal_front_1",
+   "group": 16,
+   "role": "carrier",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "crank_b_1",
+   "group": 11,
+   "role": "crank",
+   "k": 1,
+   "fade": false
+  },
+  {
+   "name": "crank_core_1",
+   "group": 12,
+   "role": "crank",
+   "k": 1,
+   "fade": false
+  },
+  {
+   "name": "pillar_1",
+   "group": 13,
+   "role": "carrier",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "ecc1_1_0",
+   "group": 7,
+   "role": "disc1",
+   "k": 1,
+   "fade": false
+  },
+  {
+   "name": "ecc2_1_0",
+   "group": 9,
+   "role": "disc2",
+   "k": 1,
+   "fade": false
+  },
+  {
+   "name": "ecc1_1_1",
+   "group": 7,
+   "role": "disc1",
+   "k": 1,
+   "fade": false
+  },
+  {
+   "name": "ecc2_1_1",
+   "group": 9,
+   "role": "disc2",
+   "k": 1,
+   "fade": false
+  },
+  {
+   "name": "crank_a_2",
+   "group": 3,
+   "role": "crank",
+   "k": 2,
+   "fade": false
+  },
+  {
+   "name": "journal_rear_2",
+   "group": 5,
+   "role": "carrier",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "journal_front_2",
+   "group": 16,
+   "role": "carrier",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "crank_b_2",
+   "group": 11,
+   "role": "crank",
+   "k": 2,
+   "fade": false
+  },
+  {
+   "name": "crank_core_2",
+   "group": 12,
+   "role": "crank",
+   "k": 2,
+   "fade": false
+  },
+  {
+   "name": "pillar_2",
+   "group": 13,
+   "role": "carrier",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "ecc1_2_0",
+   "group": 7,
+   "role": "disc1",
+   "k": 2,
+   "fade": false
+  },
+  {
+   "name": "ecc2_2_0",
+   "group": 9,
+   "role": "disc2",
+   "k": 2,
+   "fade": false
+  },
+  {
+   "name": "ecc1_2_1",
+   "group": 7,
+   "role": "disc1",
+   "k": 2,
+   "fade": false
+  },
+  {
+   "name": "ecc2_2_1",
+   "group": 9,
+   "role": "disc2",
+   "k": 2,
+   "fade": false
+  },
+  {
+   "name": "main_rear",
+   "group": 4,
+   "role": "fixed",
+   "k": 0,
+   "fade": true
+  },
+  {
+   "name": "main_front",
+   "group": 17,
+   "role": "fixed",
+   "k": 0,
+   "fade": true
+  },
+  {
+   "name": "carrier_rear",
+   "group": 6,
+   "role": "carrier",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "carrier_front",
+   "group": 18,
+   "role": "carrier",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "disc1",
+   "group": 8,
+   "role": "disc1",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "disc2",
+   "group": 10,
+   "role": "disc2",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_0",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_1",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_2",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_3",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_4",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_5",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_6",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_7",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_8",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_9",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_10",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_11",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_12",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_13",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_14",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_15",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_16",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_17",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_18",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_19",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_20",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_21",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_22",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_23",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_24",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_25",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_26",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_27",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_28",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "pin_29",
+   "group": 14,
+   "role": "fixed",
+   "k": 0,
+   "fade": false
+  },
+  {
+   "name": "housing",
+   "group": 15,
+   "role": "fixed",
+   "k": 0,
+   "fade": true
+  }
+ ]
+}

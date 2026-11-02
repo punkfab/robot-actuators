@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Printable RV Reducer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+/* layout: full-bleed 3D stage, parts list (the exploded drawing's balloon list) on the right, transport dock over the stage foot */
+:root {
+  --stage: #eceff2;
+  --panel: #fafbfc;
+  --ink: #1a1e23;
+  --muted: #5b646e;
+  --line: #d3d9df;
+  --accent: #e2661a;      /* the cycloid disc's orange */
+  --accent-ink: #ffffff;
+  --fitted: #2d5ea6;      /* the carrier plates' blue */
+  --shadow: 0 1px 2px rgb(20 30 40 / .08), 0 8px 24px rgb(20 30 40 / .08);
+  --f-display: "IBM Plex Sans Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --aside-w: 300px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --stage: #14171b; --panel: #1c2026; --ink: #e6e9ed; --muted: #98a1ab; --line: #2e343b;
+    --accent: #f2803a; --accent-ink: #1a1208; --fitted: #6f9be0;
+    --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 8px 24px rgb(0 0 0 / .35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --stage: #14171b; --panel: #1c2026; --ink: #e6e9ed; --muted: #98a1ab; --line: #2e343b;
+  --accent: #f2803a; --accent-ink: #1a1208; --fitted: #6f9be0;
+  --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 8px 24px rgb(0 0 0 / .35);
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--stage); color: var(--ink); font-family: var(--f-body); font-size: 14px; overflow: hidden; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.app { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr) var(--aside-w); }
+.stage { position: relative; min-width: 0; overflow: hidden; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+/* masthead */
+.mast { position: absolute; top: calc(14px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); right: 16px; pointer-events: none; display: flex; flex-direction: column; gap: 2px; }
+.mast h1 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 22px; letter-spacing: .01em; text-wrap: balance; }
+.mast p { margin: 0; font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.mast-tools { position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: 16px; display: flex; gap: 8px; }
+
+.chip-btn { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer; box-shadow: var(--shadow); }
+.chip-btn:hover { border-color: var(--muted); }
+#parts-toggle { display: none; }
+
+/* floating callout for the active step */
+.callout { position: absolute; left: 0; top: 0; pointer-events: none; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; transition: opacity .15s; }
+.callout .tag { display: flex; align-items: center; gap: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px 3px 3px; font-size: 12px; font-weight: 500; white-space: nowrap; box-shadow: var(--shadow); }
+.callout .stem { width: 1px; height: 26px; background: var(--muted); }
+.callout .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); margin-top: -1px; }
+
+.balloon { flex: none; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font-family: var(--f-mono); font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.callout .balloon { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+.tooltip { position: absolute; pointer-events: none; background: var(--ink); color: var(--panel); font-size: 12px; padding: 4px 8px; border-radius: 4px; white-space: nowrap; transform: translate(12px, 12px); }
+
+.loading { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
+
+/* dock */
+.dock { position: absolute; left: 0; right: 0; bottom: 0; padding-top: 12px; padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: 16px; display: flex; flex-direction: column; gap: 10px; background: linear-gradient(to top, var(--stage) 55%, transparent); }
+.transport { display: flex; align-items: center; gap: 14px; }
+.play { flex: none; width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--ink); color: var(--panel); display: grid; place-items: center; cursor: pointer; box-shadow: var(--shadow); }
+.play svg { width: 18px; height: 18px; fill: currentColor; }
+.scrub { flex: 1; min-width: 0; position: relative; padding-bottom: 18px; }
+.scrub input { width: 100%; margin: 0; appearance: none; -webkit-appearance: none; background: transparent; height: 24px; cursor: pointer; }
+.scrub input::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--accent) var(--pct, 0%), var(--line) var(--pct, 0%)); }
+.scrub input::-moz-range-track { height: 4px; border-radius: 2px; background: var(--line); }
+.scrub input::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--accent); }
+.scrub input::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%; background: var(--panel); border: 2px solid var(--accent); box-shadow: var(--shadow); }
+.scrub input::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--panel); border: 2px solid var(--accent); }
+.ticks { position: absolute; left: 9px; right: 9px; bottom: 0; height: 16px; }
+.ticks button { position: absolute; transform: translateX(-50%); top: 0; border: none; background: none; padding: 0 2px; font-family: var(--f-mono); font-size: 10px; color: var(--muted); cursor: pointer; font-variant-numeric: tabular-nums; }
+.ticks button.done { color: var(--fitted); }
+.ticks button.now { color: var(--accent); font-weight: 500; }
+.step-count { flex: none; font-family: var(--f-mono); font-size: 13px; font-variant-numeric: tabular-nums; min-width: 4.5ch; text-align: right; }
+
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.now-card { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 260px; }
+.now-card .balloon { color: var(--accent); }
+.now-card .txt { min-width: 0; }
+.now-card .nm { font-family: var(--f-display); font-weight: 600; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.now-card .ds { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.run { display: flex; align-items: center; gap: 8px; }
+.run-btn { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 6px 14px 6px 8px; cursor: pointer; font-weight: 500; box-shadow: var(--shadow); }
+.run-btn .gear { width: 20px; height: 20px; }
+.run-btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.run-btn[aria-pressed="true"] .gear { animation: spin 2s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .run-btn[aria-pressed="true"] .gear { animation: none; } }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--panel); }
+.seg button { border: none; background: none; padding: 5px 10px; font-size: 12px; cursor: pointer; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+.toggles { display: flex; gap: 14px; flex-wrap: wrap; }
+.toggles label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); cursor: pointer; }
+.toggles input { accent-color: var(--accent); }
+.readout { font-family: var(--f-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.readout b { color: var(--ink); font-weight: 500; }
+
+/* parts list */
+aside { background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; padding-top: env(safe-area-inset-top, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.aside-head { padding: 16px 18px 10px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
+.aside-head h2 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; }
+.aside-head p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
+.aside-head .ratio { font-family: var(--f-mono); color: var(--ink); }
+ol.parts { list-style: none; margin: 0; padding: 6px 0 calc(16px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; flex: 1; }
+ol.parts li button { width: 100%; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 7px 18px; border: none; background: none; text-align: left; cursor: pointer; color: var(--muted); }
+ol.parts li button:hover { background: color-mix(in srgb, var(--line) 45%, transparent); }
+ol.parts .nm { font-size: 13px; line-height: 1.3; }
+ol.parts .kind { font-family: var(--f-mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
+ol.parts li.done button { color: var(--ink); }
+ol.parts li.done .balloon { color: var(--fitted); }
+ol.parts li.now button { color: var(--ink); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+ol.parts li.now .balloon { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+ol.parts li.now .nm { font-weight: 500; }
+
+@media (max-width: 820px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  aside { position: absolute; right: 0; top: 0; bottom: 0; width: min(320px, 88vw); z-index: 5; box-shadow: var(--shadow); transform: translateX(105%); transition: transform .2s; }
+  aside.open { transform: none; }
+  #parts-toggle { display: inline-block; }
+  .mast h1 { font-size: 18px; }
+  .mast { right: 120px; }
+  .readout { white-space: normal; }
+  .ticks button:nth-child(even) { display: none; }
+}
+</style>
+
+<div class="app">
+  <div class="stage" id="stage">
+    <div class="loading" id="loading">Loading 70 parts…</div>
+    <div class="mast">
+      <h1>Printable RV reducer</h1>
+      <p>81:1 · 30 ring pins · 29-lobe discs · 3 crankshafts</p>
+    </div>
+    <div class="mast-tools">
+      <button class="chip-btn" id="reframe" hidden>Follow parts</button>
+      <button class="chip-btn" id="parts-toggle" aria-expanded="false" aria-controls="aside">Parts list</button>
+    </div>
+    <div class="callout" id="callout" style="opacity:0"><div class="tag"><span class="balloon" id="co-n">1</span><span id="co-name"></span></div><div class="stem"></div><div class="dot"></div></div>
+    <div class="tooltip" id="tooltip" hidden></div>
+
+    <div class="dock">
+      <div class="transport">
+        <button class="play" id="play" aria-label="Play assembly"><svg viewBox="0 0 24 24" id="play-icon"><path d="M7 4.5v15l13-7.5z"/></svg></button>
+        <div class="scrub">
+          <input type="range" id="scrub" min="0" max="19" step="0.001" value="0" aria-label="Assembly progress">
+          <div class="ticks" id="ticks"></div>
+        </div>
+        <div class="step-count" id="count">0/19</div>
+      </div>
+      <div class="controls">
+        <div class="now-card"><span class="balloon" id="now-n">1</span><div class="txt"><div class="nm" id="now-name">Drag the slider to assemble</div><div class="ds" id="now-desc"></div></div></div>
+        <div class="run">
+          <button class="run-btn" id="run" aria-pressed="false"><svg class="gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Run reducer</button>
+          <div class="seg" role="group" aria-label="Input speed">
+            <button data-speed="0.25" aria-pressed="false">¼×</button>
+            <button data-speed="1" aria-pressed="true">1×</button>
+            <button data-speed="4" aria-pressed="false">4×</button>
+          </div>
+        </div>
+        <div class="toggles">
+          <label><input type="checkbox" id="xray"> See inside</label>
+          <label><input type="checkbox" id="hide"> Only fitted parts</label>
+        </div>
+        <div class="readout" id="readout">input <b>0.00</b> rev · cranks <b>0.00</b> rev · output <b>0.0°</b></div>
+      </div>
+    </div>
+  </div>
+
+  <aside id="aside">
+    <div class="aside-head">
+      <h2>Assembly order</h2>
+      <p>Sun → 3 planets on crankshafts → 2 cycloid discs on 30 pins → carrier output. <span class="ratio">i = 1 + (32/12)·30 = 81</span></p>
+    </div>
+    <ol class="parts" id="parts"></ol>
+  </aside>
+</div>
+
+<script>
+  // show load failures on the page instead of a silent "Loading…"
+  const showErr = (m) => { const l = document.getElementById('loading'); if (l) l.textContent = 'Could not load the model: ' + m; };
+  addEventListener('error', (e) => showErr(e.message));
+  addEventListener('unhandledrejection', (e) => showErr(e.reason && e.reason.message || e.reason));
+</script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const $ = (id) => document.getElementById(id);
+const stage = $('stage');
+const RENAME = { ecc1: 'eccentric bearings, disc 1', ecc2: 'eccentric bearings, disc 2' };
+const HIDE_TRAVEL = 70;            // mm a part slides in from when only fitted parts are shown
+
+const meta = await (await fetch('meta.json')).json();
+const groups = meta.groups.map((g, i) => ({ ...g, i, label: RENAME[g.key] || g.name, objs: [] }));
+const N = groups.length;
+
+// ---- renderer, camera, lights ----
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+stage.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+scene.environmentIntensity = 0.8;
+const key = new THREE.DirectionalLight(0xffffff, 1.6);
+key.position.set(300, 500, 600);
+scene.add(key, new THREE.HemisphereLight(0xffffff, 0x8890a0, 0.4));
+
+const camera = new THREE.PerspectiveCamera(24, 1, 1, 20000);
+camera.position.set(500, 420, 1100);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.12;
+let follow = true;
+controls.addEventListener('start', () => { follow = false; $('reframe').hidden = false; });
+$('reframe').onclick = () => { follow = true; $('reframe').hidden = true; };
+
+// CAD frame (mm, actuator axis +z) laid on its side: motor left, output flange right
+const cad = new THREE.Group();
+cad.rotation.y = Math.PI / 2;
+scene.add(cad);
+
+// ---- parts ----
+// The glTF carries its mesh buffer as a base64 data: URI. Some hosts block fetching data: URIs,
+// so decode it here and hand the loader a binary GLB built in memory.
+async function loadParts(url) {
+  const j = await (await fetch(url)).json();
+  // merge every base64 buffer into one binary chunk, 4-byte aligned, and re-point the views
+  const parts = j.buffers.map((b) => Uint8Array.from(atob(b.uri.split(',')[1]), (c) => c.charCodeAt(0)));
+  const base = []; let total = 0;
+  for (const p of parts) { base.push(total); total = (total + p.length + 3) & ~3; }
+  const bin = new Uint8Array(total);
+  parts.forEach((p, i) => bin.set(p, base[i]));
+  for (const v of j.bufferViews) { v.byteOffset = (v.byteOffset || 0) + base[v.buffer]; v.buffer = 0; }
+  j.buffers = [{ byteLength: total }];
+  const json = new TextEncoder().encode(JSON.stringify(j));
+  const pad = (n) => (n + 3) & ~3, jl = pad(json.length), bl = pad(bin.length);
+  const out = new ArrayBuffer(20 + jl + 8 + bl), dv = new DataView(out), u8 = new Uint8Array(out);
+  dv.setUint32(0, 0x46546c67, true); dv.setUint32(4, 2, true); dv.setUint32(8, out.byteLength, true);
+  dv.setUint32(12, jl, true); dv.setUint32(16, 0x4e4f534a, true); u8.set(json, 20); u8.fill(0x20, 20 + json.length, 20 + jl);
+  dv.setUint32(20 + jl, bl, true); dv.setUint32(24 + jl, 0x004e4942, true); u8.set(bin, 28 + jl);
+  return new GLTFLoader().parseAsync(out, '');
+}
+const gltf = await loadParts('parts.gltf.json');
+cad.add(gltf.scene);
+const parts = [];
+for (const o of meta.objects) {
+  const obj = gltf.scene.getObjectByName(o.name);
+  if (!obj) continue;
+  obj.matrixAutoUpdate = false;
+  const mats = [];
+  obj.traverse((m) => {
+    if (!m.isMesh) return;
+    m.userData.part = o.name;
+    m.material.color.convertSRGBToLinear();       // the CAD colours are sRGB; glTF reads them as linear
+    mats.push(m.material);
+  });
+  const p = { ...o, obj, mats, g: groups[o.group] };
+  parts.push(p);
+  groups[o.group].objs.push(p);
+}
+$('loading').remove();
+
+// ---- kinematics (assemble_blender.py's kinematic(), the same exact reducer motion) ----
+const Rz = (a) => new THREE.Matrix4().makeRotationZ(a);
+const T = (x, y, z) => new THREE.Matrix4().makeTranslation(x, y, z);
+const about = (px, py, a) => T(px, py, 0).multiply(Rz(a)).multiply(T(-px, -py, 0));
+const crankXY = (k) => { const a = meta.crank0 * Math.PI / 180 + 2 * Math.PI * k / meta.n_crank; return [meta.r_crank * Math.cos(a), meta.r_crank * Math.sin(a)]; };
+function angles(thIn) {
+  const thO = thIn / meta.ratio;
+  return { thIn, thO, thC: -(meta.z_sun / meta.z_planet) * (thIn - thO) };
+}
+function kinematic(role, k, A) {
+  switch (role) {
+    case 'fixed': return new THREE.Matrix4();
+    case 'input': return Rz(A.thIn);
+    case 'carrier': return Rz(A.thO);
+    case 'crank': { const [x, y] = crankXY(k); return Rz(A.thO).multiply(about(x, y, A.thC)); }
+    default: {                                    // disc1 / disc2: orbit by e, turn with the output
+      const s = role === 'disc1' ? 1 : -1, phi = A.thO + A.thC, e = meta.e;
+      return T(s * e * Math.cos(phi) - s * e, s * e * Math.sin(phi), 0).multiply(about(s * e, 0, A.thO));
+    }
+  }
+}
+const ease = (x) => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
+
+// ---- state ----
+const st = { s: 0, playing: false, running: false, speed: 1, thIn: 0, xray: false, xrayTouched: false, hide: false, hover: -1 };
+const scrub = $('scrub');
+
+// parts list and ticks
+const list = $('parts'), ticks = $('ticks');
+groups.forEach((g, i) => {
+  const li = document.createElement('li');
+  li.innerHTML = `<button><span class="balloon">${i + 1}</span><span class="nm"></span><span class="kind">${g.kind || ''}${g.qty > 1 ? ' ×' + g.qty : ''}</span></button>`;
+  li.querySelector('.nm').textContent = g.label;
+  const b = li.querySelector('button');
+  b.onclick = () => { goTo(i + 1); closeAside(); };
+  b.onmouseenter = () => (st.hover = i);
+  b.onmouseleave = () => (st.hover = -1);
+  b.title = g.text || '';
+  list.append(li); g.li = li;
+  const t = document.createElement('button');
+  t.textContent = i + 1; t.style.left = `${(i + 1) / N * 100}%`;
+  t.setAttribute('aria-label', `Jump to step ${i + 1}, ${g.label}`);
+  t.onclick = () => goTo(i + 1);
+  ticks.append(t); g.tick = t;
+});
+
+let tween = null;
+function goTo(target) { st.playing = false; tween = { to: target }; syncPlay(); }
+function setS(v) { st.s = Math.min(N, Math.max(0, v)); scrub.value = st.s; }
+scrub.addEventListener('input', () => { tween = null; st.playing = false; syncPlay(); st.s = +scrub.value; });
+
+function syncPlay() {
+  $('play-icon').innerHTML = st.playing ? '<path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z"/>' : '<path d="M7 4.5v15l13-7.5z"/>';
+  $('play').setAttribute('aria-label', st.playing ? 'Pause assembly' : 'Play assembly');
+}
+$('play').onclick = () => {
+  tween = null;
+  if (!st.playing && st.s >= N - 1e-3) setS(0);
+  st.playing = !st.playing; syncPlay();
+};
+function setRun(on) {
+  st.running = on;
+  $('run').setAttribute('aria-pressed', on);
+}
+$('run').onclick = () => setRun(!st.running);
+document.querySelectorAll('.seg button').forEach((b) => b.onclick = () => {
+  st.speed = +b.dataset.speed;
+  document.querySelectorAll('.seg button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+});
+$('xray').onchange = (e) => { st.xray = e.target.checked; st.xrayTouched = true; };
+$('hide').onchange = (e) => { st.hide = e.target.checked; };
+const aside = $('aside');
+function closeAside() { aside.classList.remove('open'); $('parts-toggle').setAttribute('aria-expanded', 'false'); }
+$('parts-toggle').onclick = () => { const o = aside.classList.toggle('open'); $('parts-toggle').setAttribute('aria-expanded', o); };
+addEventListener('keydown', (e) => {
+  if (e.target.closest('input[type=checkbox]')) return;
+  if (e.code === 'Space') { e.preventDefault(); $('play').click(); }
+  else if (e.key === 'r' || e.key === 'R') setRun(!st.running);
+  else if (e.key === 'ArrowRight' && e.target !== scrub) goTo(Math.min(N, Math.floor(st.s + 1e-3) + 1));
+  else if (e.key === 'ArrowLeft' && e.target !== scrub) goTo(Math.max(0, Math.ceil(st.s - 1e-3) - 1));
+});
+
+// theme-dependent accent for highlights
+const accent = new THREE.Color();
+function readTheme() { accent.set(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e2661a'); }
+readTheme();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
+new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+// hover picking
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+let pointer = null, hover3d = -1;
+renderer.domElement.addEventListener('pointermove', (e) => { const r = renderer.domElement.getBoundingClientRect(); pointer = { x: e.clientX - r.left, y: e.clientY - r.top, w: r.width, h: r.height }; });
+renderer.domElement.addEventListener('pointerleave', () => { pointer = null; });
+
+// ---- layout ----
+let W = 1, H = 1, dockH = 0;
+function resize() {
+  W = stage.clientWidth; H = stage.clientHeight;
+  dockH = document.querySelector('.dock').offsetHeight;
+  renderer.setSize(W, H, false);
+  camera.aspect = W / H;
+  camera.setViewOffset(W, H, 0, (dockH - 60) / 2, W, H);    // centre the parts in the space above the dock
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage);
+resize();
+
+// ---- frame loop ----
+const box = new THREE.Box3(), gbox = new THREE.Box3(), sphere = new THREE.Sphere(), v = new THREE.Vector3();
+const tgt = new THREE.Vector3(); let dist = 0, first = true;
+const clock = new THREE.Clock();
+const fmt = (x, d) => (x < 0 ? '−' : '') + Math.abs(x).toFixed(d);
+
+function tick() {
+  const dt = Math.min(clock.getDelta(), 0.1);
+  if (st.playing) { setS(st.s + dt * 0.9); if (st.s >= N) { st.playing = false; syncPlay(); } }
+  if (tween) {
+    const d = tween.to - st.s;
+    if (Math.abs(d) < 1e-3) { setS(tween.to); tween = null; } else setS(st.s + Math.sign(d) * Math.min(Math.abs(d), dt * Math.max(2.5, Math.abs(d) * 3)));
+  }
+  if (st.running) st.thIn += dt * st.speed * 2 * Math.PI;
+  // until the viewer sets it, "See inside" follows the run toggle once the housing is on
+  if (!st.xrayTouched) { const x = st.running && st.s > N - 4; if (x !== st.xray) { st.xray = x; $('xray').checked = x; } }
+  const A = angles(st.thIn);
+  scrub.style.setProperty('--pct', `${st.s / N * 100}%`);
+
+  const active = Math.min(N - 1, Math.floor(st.s));         // the step arriving (or the last one, when done)
+  const arriving = st.s < N && st.s - active > 1e-3 ? active : -1;
+
+  // hover from the canvas
+  hover3d = -1;
+  if (pointer) {
+    ndc.set(pointer.x / pointer.w * 2 - 1, -(pointer.y / pointer.h) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    const pick = parts.filter((p) => p.obj.visible && !(st.xray && p.fade)).map((p) => p.obj);
+    const hit = ray.intersectObjects(pick, true)[0];
+    if (hit) {
+      const p = parts.find((q) => q.name === hit.object.userData.part);
+      hover3d = p.group;
+      const tip = $('tooltip'); tip.hidden = false;
+      tip.textContent = `${p.group + 1} · ${p.g.label}`;
+      tip.style.left = pointer.x + 'px'; tip.style.top = pointer.y + 'px';
+    }
+  }
+  if (hover3d < 0) $('tooltip').hidden = true;
+  const hl = st.hover >= 0 ? st.hover : hover3d;
+  renderer.domElement.style.cursor = hover3d >= 0 ? 'pointer' : '';
+
+  box.makeEmpty();
+  for (const p of parts) {
+    const g = p.group, prog = ease(st.s - g);
+    const travel = st.hide ? Math.min(HIDE_TRAVEL, p.g.dz) : p.g.dz;
+    p.obj.visible = !st.hide || st.s > g + 1e-3 || g === 0;
+    p.obj.matrix.copy(T(0, 0, travel * (1 - prog)).multiply(kinematic(p.role, p.k, A)));
+    const faded = st.xray && p.fade;
+    const glow = g === hl ? 0.45 : g === arriving ? 0.22 : 0;
+    for (const m of p.mats) {
+      m.transparent = faded; m.opacity = faded ? 0.16 : 1; m.depthWrite = !faded;
+      m.emissive.copy(accent); m.emissiveIntensity = glow;
+    }
+  }
+  cad.updateMatrixWorld(true);
+  for (const p of parts) if (p.obj.visible) box.expandByObject(p.obj);
+
+  // camera follows the parts' extent unless the viewer has taken over
+  if (follow && !box.isEmpty()) {
+    box.getBoundingSphere(sphere);
+    const vfov = camera.fov * Math.PI / 180 * (H - dockH * 0.7) / H;
+    const hfov = 2 * Math.atan(Math.tan(camera.fov * Math.PI / 360) * W / H);
+    const want = sphere.radius / Math.sin(Math.min(vfov, hfov) / 2) * 0.92;
+    const k = first ? 1 : 1 - Math.exp(-dt * 3);
+    if (first) { tgt.copy(sphere.center); dist = want; first = false; }
+    tgt.lerp(sphere.center, k); dist += (want - dist) * k;
+    v.subVectors(camera.position, controls.target).normalize();
+    controls.target.copy(tgt);
+    camera.position.copy(tgt).addScaledVector(v, dist);
+  }
+  controls.update();
+
+  // callout over the active group
+  const cg = groups[hl >= 0 ? hl : (st.s < 1e-3 ? 0 : active)];
+  const co = $('callout');
+  gbox.makeEmpty(); cg.objs.forEach((p) => p.obj.visible && gbox.expandByObject(p.obj));
+  if (!gbox.isEmpty()) {
+    v.set((gbox.min.x + gbox.max.x) / 2, gbox.max.y, (gbox.min.z + gbox.max.z) / 2).project(camera);
+    const x = (v.x + 1) / 2 * W, y = (1 - v.y) / 2 * H;
+    const onScreen = v.z < 1 && x > 20 && x < W - 20 && y > 80 && y < H - dockH;
+    co.style.opacity = onScreen ? 1 : 0;
+    co.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`;
+    $('co-n').textContent = cg.i + 1; $('co-name').textContent = cg.label;
+  } else co.style.opacity = 0;
+
+  // dock and list
+  const ng = groups[st.s < 1e-3 ? 0 : active];
+  $('count').textContent = `${Math.floor(st.s + 1e-6)}/${N}`;
+  $('now-n').textContent = ng.i + 1;
+  $('now-name').textContent = st.s < 1e-3 ? 'Drag the slider to assemble' : ng.label;
+  $('now-desc').textContent = `${ng.text || ''} · ${ng.kind}${ng.qty > 1 ? ' ×' + ng.qty : ''}`;
+  groups.forEach((g, i) => {
+    const done = st.s >= i + 1 - 1e-3, now = !done && i === active && st.s > 1e-3;
+    g.li.classList.toggle('done', done); g.li.classList.toggle('now', now || i === hl);
+    g.tick.classList.toggle('done', done); g.tick.classList.toggle('now', now);
+  });
+  $('readout').innerHTML = `input <b>${fmt(A.thIn / 2 / Math.PI, 2)}</b> rev · cranks <b>${fmt(A.thC / 2 / Math.PI, 2)}</b> rev · output <b>${fmt(A.thO * 180 / Math.PI, 1)}°</b>`;
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+syncPlay();
+requestAnimationFrame(tick);
+</script>
