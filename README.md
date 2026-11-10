@@ -36,6 +36,8 @@ Run `make help` for every target. The main one for each project:
 | [`planetary/`](planetary/) | Standalone 4:1 planetary for a 2204 motor | `planetary` |
 | [`planetary-inverted/`](planetary-inverted/) | 5:1 carrier-out planetary, NEMA 17 in and out | `planetary-inverted` |
 | [`rv/`](rv/) | RV reducer: fatigue model, steel and printable versions | `rv`, `rv-printed` |
+| [`wobble/`](wobble/) | Twin nutating roller-cam reducer, 65:1, whose cam rollers are the output bearing; MuJoCo 4.0 contact sim | `wobble`, `wobble-sim-demo` |
+| [`wobble2/`](wobble2/) | One wobble ring between a 3-bearing input and 12 cam followers, 4:1, off-the-shelf rollers | `wobble2`, `wobble2-sim-demo` |
 
 **Linear actuators**
 
@@ -106,7 +108,7 @@ the real kinematics.
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install build123d bd_warehouse mujoco numpy scipy matplotlib trimesh shapely
+.venv/bin/python -m pip install build123d bd_warehouse mujoco numpy scipy matplotlib trimesh shapely manifold3d networkx
 make help                      # every target
 make rv                        # for example: size the RV reducer
 ```

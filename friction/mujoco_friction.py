@@ -39,7 +39,7 @@ class FrictionUpdater:
         self.m = model
         self.f = friction
         jid = model.joint(joint).id
-        if model.jnt_type[jid] not in (mujoco.mjtJoint.mjJNT_HINGE, mujoco.mjtJoint.mjJNT_SLIDE):
+        if int(model.jnt_type[jid]) not in (int(mujoco.mjtJoint.mjJNT_HINGE), int(mujoco.mjtJoint.mjJNT_SLIDE)):
             raise ValueError(f"{joint}: friction models need a 1-dof hinge/slide joint")
         self.dof = model.jnt_dofadr[jid]
         model.dof_damping[self.dof] = friction.kv

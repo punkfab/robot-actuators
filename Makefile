@@ -77,6 +77,18 @@ help:
 	@echo "  make rv-printed             3D-printable RV: ball bearings + steel dowels, load ranking, CAD, BOM"
 	@echo "  make rv-explode             exploded drawing of the printable RV with balloons and a parts list"
 	@echo "  make rv-assemble-video      Blender animation: parts fly together, then the reducer runs (~45 min; --quick)"
+	@echo "  make wobble                 twin nutating roller-cam reducer: kinematics, roller-bearing statics, efficiency"
+	@echo "  make wobble-cad             CAD meshes + checks (watertight, rollers touch walls, no interference)"
+	@echo "  make wobble-render          Blender renders, full and cutaway"
+	@echo "  make wobble-sim             MuJoCo 4.0 interactive viewer (slow motion)"
+	@echo "  make wobble-sim-demo        scenarios: ratio, hold, A/B, efficiency, shaking -> plots + gif (~3 min)"
+	@echo "  make wobble-sim-selftest    build, hold a load, compare with the statics model, no window"
+	@echo "  make wobble2                single wobble ring between two roller rows (4:1): kinematics, dead centres, capacity, efficiency"
+	@echo "  make wobble2-cad            CAD meshes + checks (rollers touch the waves, nothing clashes)"
+	@echo "  make wobble2-render         Blender renders: full, cutaway, ring with its rollers"
+	@echo "  make wobble2-sim            MuJoCo 4.0 interactive viewer (slow motion)"
+	@echo "  make wobble2-sim-demo       ratio, hold, efficiency vs speed, shaking -> plots + gif (~2 min)"
+	@echo "  make wobble2-sim-selftest   build, hold a load, compare with the statics model, no window"
 	@echo "  make rv-sim-video           meshing check + render out/rv_sim.mp4 / .gif"
 	@echo "  make rv-web                 meshes + kinematics for the interactive assembly page rv/web/index.html"
 	@echo "  make muscle                 matrix muscle: SMA cell, bundle, crosstalk sheet"
@@ -415,3 +427,31 @@ rv-web:
 .PHONY: rv-assemble-video
 rv-assemble-video:
 	$(PY) rv/assemble_anim.py
+
+.PHONY: wobble wobble-cad wobble-render wobble-sim wobble-sim-demo wobble-sim-selftest
+wobble:
+	$(PY) wobble/design.py
+wobble-cad:
+	$(PY) wobble/cad.py
+wobble-render: wobble-cad
+	$(PY) wobble/render.py
+wobble-sim:
+	$(PY) wobble/sim.py
+wobble-sim-demo:
+	$(PY) wobble/sim.py --demo
+wobble-sim-selftest:
+	$(PY) wobble/sim.py --selftest
+
+.PHONY: wobble2 wobble2-cad wobble2-render wobble2-sim wobble2-sim-demo wobble2-sim-selftest
+wobble2:
+	$(PY) wobble2/design.py
+wobble2-cad:
+	$(PY) wobble2/cad.py
+wobble2-render: wobble2-cad
+	$(PY) wobble2/render.py
+wobble2-sim:
+	$(PY) wobble2/sim.py
+wobble2-sim-demo:
+	$(PY) wobble2/sim.py --demo
+wobble2-sim-selftest:
+	$(PY) wobble2/sim.py --selftest

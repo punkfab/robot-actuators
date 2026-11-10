@@ -54,3 +54,9 @@ rv/out/explode/
 rv/out/assemble/
 rv/out/rv_assembly_quick.mp4
 rv/out/*.log
+wobble/out/cad/
+wobble/out/sim/
+wobble/out/*.glb
+wobble2/out/cad/
+wobble2/out/sim/
+wobble2/out/*.glb
