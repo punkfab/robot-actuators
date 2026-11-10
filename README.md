@@ -107,14 +107,14 @@ the real kinematics.
 ## Setup
 
 ```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install build123d bd_warehouse mujoco numpy scipy matplotlib trimesh shapely manifold3d networkx
+make install                   # .venv + requirements.txt (uses uv if you have it)
 make help                      # every target
 make rv                        # for example: size the RV reducer
 ```
 
 Some targets need more:
-- gmsh and scikit-fem for the motor field solutions (`motor/`, `qdd-liquid/`, `pcb-motor/`)
+- gmsh and scikit-fem for the motor field solutions (`motor/`, `qdd-liquid/`, `pcb-motor/`): `make install-fea`
+- python-can for recording from the RobStride motors (`robstride/record.py`)
 - Blender 5 for renders and animation (set `BLENDER=` if it isn't in `/opt`)
 - OpenSCAD for some older previews
 - Wine and FEMM 4.2 for the `qdd-liquid` cross-checks

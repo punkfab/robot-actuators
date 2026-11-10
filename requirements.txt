@@ -1,0 +1,13 @@
+# core: CAD, sims, plots, renders' Python side (make install)
+build123d
+bd_warehouse          # involute spur gears
+mujoco>=4.0           # wobble/ and wobble2/ use MuJoCo 4.0 roller contacts
+numpy
+scipy
+matplotlib
+trimesh
+shapely
+manifold3d
+networkx
+pillow
+imageio

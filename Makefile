@@ -1,12 +1,40 @@
 # Robot actuators — build (CAD -> STEP/STL) and sim (kinematic MuJoCo viewer) targets.
 # All parts use the in-repo virtualenv (build123d + mujoco live there).
 PY := .venv/bin/python
+# uv when it's installed (much faster), otherwise the stdlib venv + pip
+UV := $(shell command -v uv 2>/dev/null)
 
 .DEFAULT_GOAL := help
+
+.venv/bin/python:
+ifdef UV
+	uv venv --python 3.12 .venv
+else
+	python3 -m venv .venv
+endif
+
+.PHONY: install
+install: .venv/bin/python
+ifdef UV
+	uv pip install --python $(PY) -r requirements.txt
+else
+	$(PY) -m pip install --upgrade pip
+	$(PY) -m pip install -r requirements.txt
+endif
+
+.PHONY: install-fea
+install-fea: install
+ifdef UV
+	uv pip install --python $(PY) -r requirements-fea.txt
+else
+	$(PY) -m pip install -r requirements-fea.txt
+endif
 
 .PHONY: help
 help:
 	@echo "targets:"
+	@echo "  make install                create .venv and install the core dependencies (requirements.txt)"
+	@echo "  make install-fea            add gmsh + scikit-fem for the motor field solutions (requirements-fea.txt)"
 	@echo "  make cycloidal-center       build the straddle-carrier centre-output cycloidal"
 	@echo "  make sim-cycloidal-center   build + open its kinematic MuJoCo viewer"
 	@echo "  make planetary              build the standalone planetary reducer"

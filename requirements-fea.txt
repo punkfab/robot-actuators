@@ -1,0 +1,3 @@
+# field solutions in motor/, pcb-motor/, qdd-liquid/ (make install-fea)
+gmsh
+scikit-fem
