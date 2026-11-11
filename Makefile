@@ -117,6 +117,7 @@ help:
 	@echo "  make wobble2-sim            MuJoCo 4.0 interactive viewer (slow motion)"
 	@echo "  make wobble2-sim-demo       ratio, hold, efficiency vs speed, shaking -> plots + gif (~2 min)"
 	@echo "  make wobble2-sim-selftest   build, hold a load, compare with the statics model, no window"
+	@echo "  make wobble2-web            meshes + kinematics for the interactive assembly page wobble2/web/index.html"
 	@echo "  make rv-sim-video           meshing check + render out/rv_sim.mp4 / .gif"
 	@echo "  make rv-web                 meshes + kinematics for the interactive assembly page rv/web/index.html"
 	@echo "  make muscle                 matrix muscle: SMA cell, bundle, crosstalk sheet"
@@ -483,3 +484,6 @@ wobble2-sim-demo:
 	$(PY) wobble2/sim.py --demo
 wobble2-sim-selftest:
 	$(PY) wobble2/sim.py --selftest
+.PHONY: wobble2-web
+wobble2-web:
+	$(PY) wobble2/web_export.py

@@ -166,3 +166,9 @@ make wobble2-sim            # interactive viewer (slow motion; the slider sets t
   - the pins are modelled as a stiff constraint plus μ 0.12 sliding friction, and seat friction is
     left out
   - contact pressure uses 1500 MPa as the long-life limit
+
+## Interactive page (`web_export.py`)
+
+`make wobble2-web` writes `web/parts.gltf.json` and `web/meta.json` for `web/index.html`: slide to fit
+the 11 assembly steps in order, and run the reducer at any point (the ring nutates, the output turns
+at −1/4). Serve it with `python -m http.server -d wobble2/web` and open http://localhost:8000.
